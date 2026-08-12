@@ -51,6 +51,8 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
 
         return View(new CorporateDashboardViewModel(
             BuildSummary(rows),
+            BuildInsights(rows),
+            BuildRanking(rows),
             rows,
             BuildOperationalSummary(operationalMetrics)));
     }
@@ -131,6 +133,53 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
             transactionCount == 0 ? null : netSales / transactionCount,
             metrics.First().Currency,
             "Datos simulados");
+    }
+
+    private static IReadOnlyList<DashboardInsightViewModel> BuildInsights(IReadOnlyList<CorporateDashboardBranchRowViewModel> rows)
+    {
+        var synchronizedRows = rows
+            .Where(row => row.Rating is not null)
+            .OrderByDescending(row => row.Rating)
+            .ToList();
+
+        var bestBranch = synchronizedRows.FirstOrDefault();
+        var lowestBranch = synchronizedRows.OrderBy(row => row.Rating).FirstOrDefault();
+        var growingBranch = rows
+            .Where(row => row.ReviewCountDelta is not null)
+            .OrderByDescending(row => row.ReviewCountDelta)
+            .FirstOrDefault();
+        var unsynchronizedCount = rows.Count(row => row.RetrievedAtUtc is null);
+
+        return
+        [
+            bestBranch is null
+                ? new DashboardInsightViewModel("Mejor reputacion", "No disponible", "Sin sincronizaciones todavia.", "muted")
+                : new DashboardInsightViewModel("Mejor reputacion", bestBranch.Rating!.Value.ToString("0.00"), bestBranch.Name, "success"),
+            lowestBranch is null
+                ? new DashboardInsightViewModel("Requiere atencion", "No disponible", "Sin datos para comparar.", "muted")
+                : new DashboardInsightViewModel("Requiere atencion", lowestBranch.Rating!.Value.ToString("0.00"), lowestBranch.Name, "warning"),
+            growingBranch is null
+                ? new DashboardInsightViewModel("Mayor crecimiento", "No disponible", "Se necesita una segunda sincronizacion.", "muted")
+                : new DashboardInsightViewModel("Mayor crecimiento", $"+{growingBranch.ReviewCountDelta:N0}", growingBranch.Name, "info"),
+            new DashboardInsightViewModel("Pendientes de datos", unsynchronizedCount.ToString("N0"), "Sucursales sin snapshot publico.", unsynchronizedCount == 0 ? "success" : "warning")
+        ];
+    }
+
+    private static IReadOnlyList<BranchRankingItemViewModel> BuildRanking(IReadOnlyList<CorporateDashboardBranchRowViewModel> rows)
+    {
+        return rows
+            .OrderByDescending(row => row.Rating ?? 0)
+            .ThenByDescending(row => row.ReviewCount ?? 0)
+            .Select((row, index) => new BranchRankingItemViewModel(
+                row.BranchId,
+                index + 1,
+                row.Code,
+                row.Name,
+                row.Rating,
+                row.Rating is null ? 0 : (int)Math.Round(row.Rating.Value * 20),
+                row.ReviewCount,
+                row.DataStatus))
+            .ToList();
     }
 
     private static string FormatBusinessStatus(BusinessStatus? businessStatus)

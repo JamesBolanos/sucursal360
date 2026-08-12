@@ -31,6 +31,56 @@
     </article>
 </section>
 
+<section class="dashboard-focus mb-3">
+    <div class="surface">
+        <div class="surface-header">
+            <div>
+                <h2>Lectura rapida</h2>
+                <p>Senales principales despues de la ultima sincronizacion.</p>
+            </div>
+        </div>
+
+        <div class="insight-grid">
+            @foreach (var insight in Model.Insights)
+            {
+                <article class="insight-item insight-@insight.Tone">
+                    <span>@insight.Label</span>
+                    <strong>@insight.Value</strong>
+                    <small>@insight.Detail</small>
+                </article>
+            }
+        </div>
+    </div>
+
+    <div class="surface">
+        <div class="surface-header">
+            <div>
+                <h2>Ranking de sucursales</h2>
+                <p>Rating publico actual y volumen de resenas.</p>
+            </div>
+        </div>
+
+        <div class="ranking-list">
+            @foreach (var item in Model.Ranking)
+            {
+                <a class="ranking-item" asp-controller="Branches" asp-action="Details" asp-route-id="@item.BranchId">
+                    <span class="ranking-position">@item.Rank</span>
+                    <span class="ranking-main">
+                        <span class="ranking-title">@item.Code - @item.Name</span>
+                        <span class="rating-bar" aria-hidden="true">
+                            <span style="width: @item.RatingPercent%;"></span>
+                        </span>
+                    </span>
+                    <span class="ranking-metrics">
+                        <strong>@FormatDecimal(item.Rating)</strong>
+                        <small>@FormatNumber(item.ReviewCount) resenas</small>
+                    </span>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
 <section class="surface mb-3">
     <div class="surface-header">
         <div>

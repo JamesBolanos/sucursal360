@@ -53,6 +53,12 @@ public sealed class DashboardControllerTests
         Assert.AreEqual("Actualizado", branch.DataStatus);
         Assert.AreEqual("Operando", branch.BusinessStatus);
 
+        Assert.HasCount(4, model.Insights);
+        Assert.AreEqual("Mejor reputacion", model.Insights[0].Label);
+        Assert.AreEqual("Cafe Horizonte Centro", model.Insights[0].Detail);
+        Assert.AreEqual(SeedIds.BranchCentro, model.Ranking[0].BranchId);
+        Assert.AreEqual(88, model.Ranking[0].RatingPercent);
+
         var unsynchronizedBranch = model.Branches.Single(branch => branch.BranchId == SeedIds.BranchGalerias);
         Assert.AreEqual("Sin sincronizar", unsynchronizedBranch.DataStatus);
         Assert.IsNull(unsynchronizedBranch.Rating);
