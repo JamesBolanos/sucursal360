@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Sucursal360.Web.Data;
+using Sucursal360.Web.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,11 +11,35 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = true;
+        options.User.RequireUniqueEmail = true;
+        options.Password.RequiredLength = 10;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireDigit = true;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(AppPolicies.CanViewCorporateDashboard, policy =>
+        policy.RequireRole(AppRoles.CorporateManager, AppRoles.Administrator));
+    options.AddPolicy(AppPolicies.CanExportManagementReport, policy =>
+        policy.RequireRole(AppRoles.CorporateManager, AppRoles.Administrator));
+    options.AddPolicy(AppPolicies.CanAdministerSystem, policy =>
+        policy.RequireRole(AppRoles.Administrator));
+});
+builder.Services.AddScoped<IBranchAccessService, BranchAccessService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+await DevelopmentUserSeeder.SeedAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -31,6 +56,7 @@ else
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

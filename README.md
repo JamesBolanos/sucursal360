@@ -83,6 +83,23 @@ Aplicar migraciones:
 dotnet ef database update --project src/Sucursal360.Web/Sucursal360.Web.csproj
 ```
 
+## Usuarios Demo Locales
+
+La aplicacion crea usuarios demo solo en ambiente `Development` y solo si existe una contrasena local
+en User Secrets. No se guardan contrasenas funcionales en el repositorio.
+
+Configurar una contrasena local:
+
+```bash
+dotnet user-secrets set "SeedUsers:DefaultPassword" "<tu-password-local>" --project src/Sucursal360.Web/Sucursal360.Web.csproj
+```
+
+Al iniciar la aplicacion en `Development`, se crean o actualizan estos usuarios:
+
+- `admin@sucursal360.local` -> `Administrador`
+- `corporativo@sucursal360.local` -> `GerenteCorporativo`
+- `sucursal@sucursal360.local` -> `GerenteSucursal`, asignado a `SUC-001`
+
 ## Documentacion Principal
 
 - `AGENTS.md`: guia operativa para agentes de IA.

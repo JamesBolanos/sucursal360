@@ -1,0 +1,42 @@
+@model Sucursal360.Web.Controllers.BranchDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<section class="page-header">
+    <div>
+        <p class="eyebrow">@Model.Code</p>
+        <h1>@Model.Name</h1>
+    </div>
+    <span class="status-pill status-pill-info">DEMO</span>
+</section>
+
+<section class="surface">
+    <div class="surface-header">
+        <div>
+            <h2>Detalle de sucursal</h2>
+            <p>Placeholder de acceso y alcance. El historico y las metricas se agregaran despues de la sincronizacion demo.</p>
+        </div>
+    </div>
+
+    <dl class="detail-list">
+        <div>
+            <dt>Estado</dt>
+            <dd>@(Model.IsActive ? "Activa" : "Inactiva")</dd>
+        </div>
+        <div>
+            <dt>Proveedor</dt>
+            <dd>@Model.Provider</dd>
+        </div>
+        <div>
+            <dt>Identificador externo</dt>
+            <dd>@(Model.ExternalPlaceId ?? "No disponible")</dd>
+        </div>
+    </dl>
+
+    @if (User.IsInRole(Sucursal360.Web.Security.AppRoles.Administrator) || User.IsInRole(Sucursal360.Web.Security.AppRoles.CorporateManager))
+    {
+        <a class="btn btn-outline-secondary" asp-controller="Dashboard" asp-action="Index">Volver al panel</a>
+    }
+</section>

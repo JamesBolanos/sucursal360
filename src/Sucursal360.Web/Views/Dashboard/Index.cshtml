@@ -1,0 +1,61 @@
+@model IReadOnlyList<Sucursal360.Web.Controllers.DashboardBranchRow>
+
+@{
+    ViewData["Title"] = "Panel corporativo";
+}
+
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Sucursal 360</p>
+        <h1>Panel corporativo</h1>
+    </div>
+    <span class="status-pill status-pill-info">DEMO</span>
+</section>
+
+<section class="surface">
+    <div class="surface-header">
+        <div>
+            <h2>Sucursales configuradas</h2>
+            <p>Base inicial para validar roles, alcance y datos semilla.</p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle dashboard-table">
+            <thead>
+                <tr>
+                    <th>Codigo</th>
+                    <th>Sucursal</th>
+                    <th>Estado</th>
+                    <th>Proveedor</th>
+                    <th>Identificador externo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var branch in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@branch.Code</td>
+                        <td>@branch.Name</td>
+                        <td>
+                            @if (branch.IsActive)
+                            {
+                                <span class="status-pill status-pill-success">Activa</span>
+                            }
+                            else
+                            {
+                                <span class="status-pill status-pill-muted">Inactiva</span>
+                            }
+                        </td>
+                        <td>@branch.Provider</td>
+                        <td>@(branch.ExternalPlaceId ?? "No disponible")</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" asp-controller="Branches" asp-action="Details" asp-route-id="@branch.Id">Ver</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

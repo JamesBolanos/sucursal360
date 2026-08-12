@@ -1,5 +1,6 @@
 html {
   font-size: 14px;
+  min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -14,11 +15,147 @@ html {
 
 html {
   position: relative;
-  min-height: 100%;
 }
 
 body {
+  --color-primary: #1f6f4a;
+  --color-info: #1f5eff;
+  --color-warning: #9a6700;
+  --color-danger: #b42318;
+  --color-simulated: #6f3dbd;
+  --color-ink: #1f2933;
+  --color-muted: #667085;
+  --color-border: #d9e2ec;
+  --color-surface: #ffffff;
+  --color-page: #f5f7fb;
+
   margin-bottom: 60px;
+  color: var(--color-ink);
+  background: var(--color-page);
+}
+
+.app-navbar {
+  background: #ffffff;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.eyebrow {
+  margin-bottom: .25rem;
+  color: var(--color-muted);
+  font-size: .825rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.surface {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.surface-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.surface-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.surface-header p {
+  margin: .25rem 0 0;
+  color: var(--color-muted);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding: .2rem .55rem;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+.status-pill-info {
+  color: #173b8f;
+  background: #e8efff;
+}
+
+.status-pill-success {
+  color: #175c37;
+  background: #e7f6ee;
+}
+
+.status-pill-muted {
+  color: #475467;
+  background: #eef2f6;
+}
+
+.dashboard-table th {
+  color: var(--color-muted);
+  font-size: .8rem;
+  text-transform: uppercase;
+}
+
+.detail-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-list div {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.detail-list dt {
+  color: var(--color-muted);
+  font-size: .8rem;
+  text-transform: uppercase;
+}
+
+.detail-list dd {
+  margin: .25rem 0 0;
+  font-weight: 700;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--color-primary);
+  --bs-btn-border-color: var(--color-primary);
+  --bs-btn-hover-bg: #18583b;
+  --bs-btn-hover-border-color: #18583b;
+}
+
+@media (max-width: 767px) {
+  .surface-header,
+  .page-header {
+    flex-direction: column;
+  }
+
+  .detail-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
