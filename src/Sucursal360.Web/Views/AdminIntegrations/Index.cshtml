@@ -1,0 +1,170 @@
+@model Sucursal360.Web.ViewModels.AdminIntegrations.IntegrationDashboardViewModel
+
+@{
+    ViewData["Title"] = "Integraciones";
+}
+
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Administracion</p>
+        <h1>Integraciones</h1>
+    </div>
+    <form asp-action="SyncAll" method="post">
+        <button type="submit" class="btn btn-primary">Sincronizar todas</button>
+    </form>
+</section>
+
+@if (Model.LastResults.Count > 0)
+{
+    <section class="surface mb-3">
+        <div class="surface-header">
+            <div>
+                <h2>Resultado de la ultima ejecucion</h2>
+                <p>Use la correlacion para diagnosticar cualquier fallo.</p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Sucursal</th>
+                        <th>Estado</th>
+                        <th>Recibidos</th>
+                        <th>Guardados</th>
+                        <th>Correlacion</th>
+                        <th>Mensaje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var result in Model.LastResults)
+                    {
+                        <tr>
+                            <td><span class="fw-semibold">@result.BranchCode</span> @result.BranchName</td>
+                            <td><span class="status-pill @StatusClass(result.Status)">@StatusLabel(result.Status)</span></td>
+                            <td>@result.RecordsReceived</td>
+                            <td>@result.RecordsStored</td>
+                            <td><code>@result.CorrelationId</code></td>
+                            <td>@result.UserMessage</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}
+
+<section class="surface mb-3">
+    <div class="surface-header">
+        <div>
+            <h2>Sucursales sincronizables</h2>
+            <p>La sincronizacion demo lee fixtures JSON locales y registra una bitacora por sucursal.</p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle dashboard-table">
+            <thead>
+                <tr>
+                    <th>Codigo</th>
+                    <th>Sucursal</th>
+                    <th>Estado</th>
+                    <th>Proveedor</th>
+                    <th>Identificador externo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var branch in Model.Branches)
+                {
+                    <tr>
+                        <td class="fw-semibold">@branch.Code</td>
+                        <td>@branch.Name</td>
+                        <td>
+                            @if (branch.IsActive)
+                            {
+                                <span class="status-pill status-pill-success">Activa</span>
+                            }
+                            else
+                            {
+                                <span class="status-pill status-pill-muted">Inactiva</span>
+                            }
+                        </td>
+                        <td>@branch.Provider</td>
+                        <td>@branch.ExternalPlaceId</td>
+                        <td class="text-end">
+                            <form asp-action="SyncBranch" asp-route-branchId="@branch.Id" method="post">
+                                <button type="submit" class="btn btn-sm btn-outline-primary" disabled="@(!branch.IsActive)">Sincronizar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="surface">
+    <div class="surface-header">
+        <div>
+            <h2>Bitacora reciente</h2>
+            <p>Ultimas 20 ejecuciones registradas.</p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle dashboard-table">
+            <thead>
+                <tr>
+                    <th>Inicio</th>
+                    <th>Sucursal</th>
+                    <th>Estado</th>
+                    <th>Recibidos</th>
+                    <th>Guardados</th>
+                    <th>Codigo</th>
+                    <th>Correlacion</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var run in Model.RecentRuns)
+                {
+                    <tr>
+                        <td>@run.StartedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td><span class="fw-semibold">@run.BranchCode</span> @run.BranchName</td>
+                        <td><span class="status-pill @StatusClass(run.Status)">@StatusLabel(run.Status)</span></td>
+                        <td>@run.RecordsReceived</td>
+                        <td>@run.RecordsStored</td>
+                        <td>@(run.ErrorCode ?? "No disponible")</td>
+                        <td><code>@run.CorrelationId</code></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+@functions {
+    private static string StatusLabel(string status)
+    {
+        return status switch
+        {
+            "Successful" => "Exitoso",
+            "Partial" => "Parcial",
+            "Failed" => "Fallido",
+            "InProgress" => "En progreso",
+            _ => status
+        };
+    }
+
+    private static string StatusClass(string status)
+    {
+        return status switch
+        {
+            "Successful" => "status-pill-success",
+            "Partial" => "status-pill-warning",
+            "Failed" => "status-pill-danger",
+            "InProgress" => "status-pill-info",
+            _ => "status-pill-muted"
+        };
+    }
+}

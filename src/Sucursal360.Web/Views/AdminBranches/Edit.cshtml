@@ -1,0 +1,28 @@
+@model Sucursal360.Web.ViewModels.AdminBranches.BranchFormViewModel
+
+@{
+    ViewData["Title"] = "Editar sucursal";
+}
+
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Administracion</p>
+        <h1>Editar sucursal</h1>
+    </div>
+</section>
+
+<section class="surface">
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="branch-form">
+        <input asp-for="Id" type="hidden" />
+        <partial name="_BranchForm" model="Model" />
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

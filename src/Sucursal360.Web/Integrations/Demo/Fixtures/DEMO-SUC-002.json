@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "provider": "DEMO",
+  "externalPlaceId": "DEMO-SUC-002",
+  "displayName": "Cafe Horizonte Carretera Sur",
+  "address": "Direccion ficticia 2, Managua",
+  "latitude": 12.1021,
+  "longitude": -86.3052,
+  "businessStatus": "OPERATIONAL",
+  "openingHoursText": [
+    "Lunes a sabado: 06:30-21:00",
+    "Domingo: 07:00-20:00"
+  ],
+  "rating": 4.0,
+  "reviewCount": 96,
+  "retrievedAtUtc": "2026-08-01T14:05:00Z",
+  "sourceUrl": null,
+  "reviews": [
+    {
+      "externalReviewId": "DEMO-SUC-002-REV-001",
+      "rating": 4,
+      "text": "El cafe estaba bien preparado y la atencion fue constante.",
+      "publishedAtUtc": "2026-07-25T16:00:00Z",
+      "authorDisplayName": "Cliente demo 04",
+      "language": "es",
+      "sourceUrl": null
+    },
+    {
+      "externalReviewId": "DEMO-SUC-002-REV-002",
+      "rating": 3,
+      "text": "El parqueo se llena rapido en la tarde.",
+      "publishedAtUtc": "2026-07-27T22:20:00Z",
+      "authorDisplayName": "Cliente demo 05",
+      "language": "es",
+      "sourceUrl": null
+    },
+    {
+      "externalReviewId": "DEMO-SUC-002-REV-003",
+      "rating": 2,
+      "text": "La mesa estaba sucia cuando nos sentamos.",
+      "publishedAtUtc": "2026-07-31T01:15:00Z",
+      "authorDisplayName": "Cliente demo 06",
+      "language": "es",
+      "sourceUrl": null
+    }
+  ]
+}

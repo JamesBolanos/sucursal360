@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0",
+  "provider": "DEMO",
+  "externalPlaceId": "DEMO-SUC-003",
+  "displayName": "Cafe Horizonte Galerias",
+  "address": "Direccion ficticia 3, Managua",
+  "latitude": 12.1235,
+  "longitude": -86.2669,
+  "businessStatus": "OPERATIONAL",
+  "openingHoursText": [
+    "Lunes a domingo: 08:00-22:00"
+  ],
+  "rating": 4.6,
+  "reviewCount": 164,
+  "retrievedAtUtc": "2026-08-01T14:10:00Z",
+  "sourceUrl": null,
+  "reviews": [
+    {
+      "externalReviewId": "DEMO-SUC-003-REV-001",
+      "rating": 5,
+      "text": "Excelente servicio y buena presentacion de los postres.",
+      "publishedAtUtc": "2026-07-21T20:00:00Z",
+      "authorDisplayName": "Cliente demo 07",
+      "language": "es",
+      "sourceUrl": null
+    },
+    {
+      "externalReviewId": "DEMO-SUC-003-REV-002",
+      "rating": 4,
+      "text": "Buen lugar, aunque el ruido del centro comercial se siente.",
+      "publishedAtUtc": "2026-07-26T19:35:00Z",
+      "authorDisplayName": "Cliente demo 08",
+      "language": "es",
+      "sourceUrl": null
+    },
+    {
+      "externalReviewId": "DEMO-SUC-003-REV-003",
+      "rating": 5,
+      "text": "La bebida fria estaba consistente con visitas anteriores.",
+      "publishedAtUtc": "2026-07-31T17:05:00Z",
+      "authorDisplayName": "Cliente demo 09",
+      "language": "es",
+      "sourceUrl": null
+    }
+  ]
+}

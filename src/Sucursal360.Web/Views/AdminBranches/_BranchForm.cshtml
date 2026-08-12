@@ -1,0 +1,34 @@
+@model Sucursal360.Web.ViewModels.AdminBranches.BranchFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<div class="form-grid">
+    <div class="mb-3">
+        <label asp-for="Code" class="form-label"></label>
+        <input asp-for="Code" class="form-control" placeholder="SUC-001" />
+        <span asp-validation-for="Code" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" placeholder="Cafe Horizonte Centro" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Provider" class="form-label"></label>
+        <select asp-for="Provider" asp-items="Model.ProviderOptions" class="form-select"></select>
+        <span asp-validation-for="Provider" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ExternalPlaceId" class="form-label"></label>
+        <input asp-for="ExternalPlaceId" class="form-control" placeholder="DEMO-SUC-001" />
+        <span asp-validation-for="ExternalPlaceId" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="form-check form-switch">
+    <input asp-for="IsActive" class="form-check-input" />
+    <label asp-for="IsActive" class="form-check-label"></label>
+</div>

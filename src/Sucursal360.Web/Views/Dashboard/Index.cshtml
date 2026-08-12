@@ -1,4 +1,4 @@
-@model IReadOnlyList<Sucursal360.Web.Controllers.DashboardBranchRow>
+@model Sucursal360.Web.ViewModels.Dashboard.CorporateDashboardViewModel
 
 @{
     ViewData["Title"] = "Panel corporativo";
@@ -9,15 +9,35 @@
         <p class="eyebrow">Sucursal 360</p>
         <h1>Panel corporativo</h1>
     </div>
-    <span class="status-pill status-pill-info">DEMO</span>
+    <a class="btn btn-outline-primary" asp-controller="AdminIntegrations" asp-action="Index">Integraciones</a>
 </section>
 
-<section class="surface">
+<section class="metric-grid mb-3" aria-label="Resumen corporativo">
+    <article class="metric-tile">
+        <span>Sucursales activas</span>
+        <strong>@Model.Summary.ActiveBranches / @Model.Summary.TotalBranches</strong>
+    </article>
+    <article class="metric-tile">
+        <span>Con datos publicos</span>
+        <strong>@Model.Summary.BranchesWithSnapshots</strong>
+    </article>
+    <article class="metric-tile">
+        <span>Rating promedio</span>
+        <strong>@FormatDecimal(Model.Summary.AverageRating)</strong>
+    </article>
+    <article class="metric-tile">
+        <span>Total de resenas</span>
+        <strong>@FormatNumber(Model.Summary.TotalReviewCount)</strong>
+    </article>
+</section>
+
+<section class="surface mb-3">
     <div class="surface-header">
         <div>
-            <h2>Sucursales configuradas</h2>
-            <p>Base inicial para validar roles, alcance y datos semilla.</p>
+            <h2>Comparativo de reputacion publica</h2>
+            <p>Fuente: proveedor demo local. Ultima sincronizacion: @FormatDate(Model.Summary.LastSynchronizationAtUtc).</p>
         </div>
+        <span class="status-pill status-pill-info">Integracion demo</span>
     </div>
 
     <div class="table-responsive">
@@ -27,31 +47,36 @@
                     <th>Codigo</th>
                     <th>Sucursal</th>
                     <th>Estado</th>
-                    <th>Proveedor</th>
-                    <th>Identificador externo</th>
+                    <th>Rating</th>
+                    <th>Var.</th>
+                    <th>Resenas</th>
+                    <th>Var.</th>
+                    <th>Actualizado</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var branch in Model)
+                @foreach (var branch in Model.Branches)
                 {
                     <tr>
                         <td class="fw-semibold">@branch.Code</td>
-                        <td>@branch.Name</td>
                         <td>
-                            @if (branch.IsActive)
-                            {
-                                <span class="status-pill status-pill-success">Activa</span>
-                            }
-                            else
-                            {
-                                <span class="status-pill status-pill-muted">Inactiva</span>
-                            }
+                            <div class="branch-cell">
+                                <span>@branch.Name</span>
+                                <small>@branch.Provider - @branch.ExternalPlaceId</small>
+                            </div>
                         </td>
-                        <td>@branch.Provider</td>
-                        <td>@(branch.ExternalPlaceId ?? "No disponible")</td>
+                        <td>
+                            <span class="status-pill @DataStatusClass(branch.DataStatus)">@branch.DataStatus</span>
+                            <span class="d-block mt-1 text-muted small">@branch.BusinessStatus</span>
+                        </td>
+                        <td class="metric-value">@FormatDecimal(branch.Rating)</td>
+                        <td>@FormatDelta(branch.RatingDelta, "0.00")</td>
+                        <td class="metric-value">@FormatNumber(branch.ReviewCount)</td>
+                        <td>@FormatDelta(branch.ReviewCountDelta, "0")</td>
+                        <td>@FormatDate(branch.RetrievedAtUtc)</td>
                         <td class="text-end">
-                            <a class="btn btn-sm btn-outline-primary" asp-controller="Branches" asp-action="Details" asp-route-id="@branch.Id">Ver</a>
+                            <a class="btn btn-sm btn-outline-primary" asp-controller="Branches" asp-action="Details" asp-route-id="@branch.BranchId">Ver</a>
                         </td>
                     </tr>
                 }
@@ -59,3 +84,87 @@
         </table>
     </div>
 </section>
+
+<section class="surface">
+    <div class="surface-header">
+        <div>
+            <h2>Resumen operativo</h2>
+            <p>Datos simulados separados de la reputacion publica.</p>
+        </div>
+        <span class="status-pill status-pill-muted">@Model.OperationalSummary.SourceLabel</span>
+    </div>
+
+    @if (!Model.OperationalSummary.HasData)
+    {
+        <div class="empty-state">
+            <strong>No disponible</strong>
+            <p>La importacion CSV simulada se habilitara en una iteracion posterior.</p>
+        </div>
+    }
+    else
+    {
+        <dl class="detail-list">
+            <div>
+                <dt>Ventas netas</dt>
+                <dd>@Model.OperationalSummary.Currency @FormatDecimal(Model.OperationalSummary.NetSales)</dd>
+            </div>
+            <div>
+                <dt>Transacciones</dt>
+                <dd>@FormatNumber(Model.OperationalSummary.TransactionCount)</dd>
+            </div>
+            <div>
+                <dt>Ticket promedio</dt>
+                <dd>@Model.OperationalSummary.Currency @FormatDecimal(Model.OperationalSummary.AverageTicket)</dd>
+            </div>
+        </dl>
+    }
+</section>
+
+@functions {
+    private static string FormatDecimal(decimal? value)
+    {
+        return value is null ? "No disponible" : value.Value.ToString("0.00");
+    }
+
+    private static string FormatNumber(int? value)
+    {
+        return value is null ? "No disponible" : value.Value.ToString("N0");
+    }
+
+    private static string FormatDate(DateTimeOffset? value)
+    {
+        return value is null ? "No disponible" : value.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+    }
+
+    private static string FormatDelta(decimal? value, string format)
+    {
+        if (value is null)
+        {
+            return "No disponible";
+        }
+
+        var prefix = value > 0 ? "+" : string.Empty;
+        return $"{prefix}{value.Value.ToString(format)}";
+    }
+
+    private static string FormatDelta(int? value, string format)
+    {
+        if (value is null)
+        {
+            return "No disponible";
+        }
+
+        var prefix = value > 0 ? "+" : string.Empty;
+        return $"{prefix}{value.Value.ToString(format)}";
+    }
+
+    private static string DataStatusClass(string status)
+    {
+        return status switch
+        {
+            "Actualizado" => "status-pill-success",
+            "Sin sincronizar" => "status-pill-warning",
+            _ => "status-pill-muted"
+        };
+    }
+}

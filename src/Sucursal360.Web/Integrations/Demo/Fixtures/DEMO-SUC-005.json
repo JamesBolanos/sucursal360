@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "provider": "DEMO",
+  "externalPlaceId": "DEMO-SUC-005",
+  "displayName": "Cafe Horizonte Las Colinas",
+  "address": "Direccion ficticia 5, Managua",
+  "latitude": 12.0893,
+  "longitude": -86.2348,
+  "businessStatus": "OPERATIONAL",
+  "openingHoursText": [
+    "Lunes a viernes: 06:30-20:30",
+    "Sabado y domingo: 07:00-20:00"
+  ],
+  "rating": 4.2,
+  "reviewCount": 88,
+  "retrievedAtUtc": "2026-08-01T14:20:00Z",
+  "sourceUrl": null,
+  "reviews": [
+    {
+      "externalReviewId": "DEMO-SUC-005-REV-001",
+      "rating": 4,
+      "text": "Buena atencion y espacio tranquilo.",
+      "publishedAtUtc": "2026-07-23T14:00:00Z",
+      "authorDisplayName": "Cliente demo 13",
+      "language": "es",
+      "sourceUrl": null
+    },
+    {
+      "externalReviewId": "DEMO-SUC-005-REV-002",
+      "rating": 3,
+      "text": "El precio se siente alto para el tamano de la bebida.",
+      "publishedAtUtc": "2026-07-26T21:10:00Z",
+      "authorDisplayName": "Cliente demo 14",
+      "language": "es",
+      "sourceUrl": null
+    },
+    {
+      "externalReviewId": "DEMO-SUC-005-REV-003",
+      "rating": 5,
+      "text": "El equipo resolvio rapido un cambio de orden.",
+      "publishedAtUtc": "2026-07-30T13:30:00Z",
+      "authorDisplayName": "Cliente demo 15",
+      "language": "es",
+      "sourceUrl": null
+    }
+  ]
+}

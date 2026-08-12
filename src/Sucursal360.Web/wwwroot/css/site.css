@@ -105,6 +105,16 @@ body {
   background: #e7f6ee;
 }
 
+.status-pill-warning {
+  color: #7a4f00;
+  background: #fff3cd;
+}
+
+.status-pill-danger {
+  color: #8a1f11;
+  background: #fde7e7;
+}
+
 .status-pill-muted {
   color: #475467;
   background: #eef2f6;
@@ -114,6 +124,60 @@ body {
   color: var(--color-muted);
   font-size: .8rem;
   text-transform: uppercase;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.metric-tile {
+  min-height: 7rem;
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.metric-tile span {
+  display: block;
+  color: var(--color-muted);
+  font-size: .8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.metric-tile strong {
+  display: block;
+  margin-top: .75rem;
+  font-size: 1.8rem;
+  line-height: 1.1;
+}
+
+.branch-cell {
+  display: grid;
+  gap: .15rem;
+}
+
+.branch-cell small {
+  color: var(--color-muted);
+}
+
+.metric-value {
+  font-weight: 700;
+}
+
+.empty-state {
+  padding: 1rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.empty-state p {
+  margin: .25rem 0 0;
+  color: var(--color-muted);
 }
 
 .detail-list {
@@ -140,6 +204,33 @@ body {
   font-weight: 700;
 }
 
+.action-cell {
+  display: flex;
+  justify-content: flex-end;
+  gap: .5rem;
+  white-space: nowrap;
+}
+
+.action-cell form {
+  margin: 0;
+}
+
+.branch-form {
+  max-width: 880px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: .75rem;
+  margin-top: 1.5rem;
+}
+
 .btn-primary {
   --bs-btn-bg: var(--color-primary);
   --bs-btn-border-color: var(--color-primary);
@@ -154,6 +245,24 @@ body {
   }
 
   .detail-list {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-cell {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 575px) {
+  .metric-grid {
     grid-template-columns: 1fr;
   }
 }

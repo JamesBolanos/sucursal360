@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0",
+  "provider": "DEMO",
+  "externalPlaceId": "DEMO-SUC-001",
+  "displayName": "Cafe Horizonte Centro",
+  "address": "Direccion ficticia 1, Managua",
+  "latitude": 12.1364,
+  "longitude": -86.2514,
+  "businessStatus": "OPERATIONAL",
+  "openingHoursText": [
+    "Lunes a domingo: 07:00-21:00"
+  ],
+  "rating": 4.3,
+  "reviewCount": 128,
+  "retrievedAtUtc": "2026-08-01T14:00:00Z",
+  "sourceUrl": null,
+  "reviews": [
+    {
+      "externalReviewId": "DEMO-SUC-001-REV-001",
+      "rating": 5,
+      "text": "El personal fue amable y el cafe salio rapido.",
+      "publishedAtUtc": "2026-07-28T18:30:00Z",
+      "authorDisplayName": "Cliente demo 01",
+      "language": "es",
+      "sourceUrl": null
+    },
+    {
+      "externalReviewId": "DEMO-SUC-001-REV-002",
+      "rating": 2,
+      "text": "La espera fue mas larga de lo esperado.",
+      "publishedAtUtc": "2026-07-29T12:10:00Z",
+      "authorDisplayName": "Cliente demo 02",
+      "language": "es",
+      "sourceUrl": null
+    },
+    {
+      "externalReviewId": "DEMO-SUC-001-REV-003",
+      "rating": 4,
+      "text": "Buen ambiente para una reunion corta.",
+      "publishedAtUtc": "2026-07-30T09:45:00Z",
+      "authorDisplayName": "Cliente demo 03",
+      "language": "es",
+      "sourceUrl": null
+    }
+  ]
+}

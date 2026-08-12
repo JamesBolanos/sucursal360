@@ -1,0 +1,75 @@
+@model IReadOnlyList<Sucursal360.Web.ViewModels.AdminBranches.BranchListItemViewModel>
+
+@{
+    ViewData["Title"] = "Administrar sucursales";
+}
+
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Administracion</p>
+        <h1>Sucursales</h1>
+    </div>
+    <a class="btn btn-primary" asp-action="Create">Nueva sucursal</a>
+</section>
+
+<section class="surface">
+    <div class="surface-header">
+        <div>
+            <h2>Catalogo de sucursales</h2>
+            <p>Inactivar una sucursal conserva su historial, resenas y bitacora.</p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle dashboard-table">
+            <thead>
+                <tr>
+                    <th>Codigo</th>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Proveedor</th>
+                    <th>Identificador externo</th>
+                    <th>Actualizada</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var branch in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@branch.Code</td>
+                        <td>@branch.Name</td>
+                        <td>
+                            @if (branch.IsActive)
+                            {
+                                <span class="status-pill status-pill-success">Activa</span>
+                            }
+                            else
+                            {
+                                <span class="status-pill status-pill-muted">Inactiva</span>
+                            }
+                        </td>
+                        <td>@branch.Provider</td>
+                        <td>@branch.ExternalPlaceId</td>
+                        <td>@branch.UpdatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                        <td class="action-cell">
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@branch.Id">Editar</a>
+                            @if (branch.IsActive)
+                            {
+                                <form asp-action="Deactivate" asp-route-id="@branch.Id" method="post" onsubmit="return confirm('Inactivar esta sucursal? El historial se conserva.');">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">Inactivar</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="Activate" asp-route-id="@branch.Id" method="post">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0",
+  "provider": "DEMO",
+  "externalPlaceId": "DEMO-SUC-004",
+  "displayName": "Cafe Horizonte Metrocentro",
+  "address": "Direccion ficticia 4, Managua",
+  "latitude": 12.1281,
+  "longitude": -86.2642,
+  "businessStatus": "OPERATIONAL",
+  "openingHoursText": [
+    "Lunes a domingo: 07:30-21:30"
+  ],
+  "rating": 3.8,
+  "reviewCount": 112,
+  "retrievedAtUtc": "2026-08-01T14:15:00Z",
+  "sourceUrl": null,
+  "reviews": [
+    {
+      "externalReviewId": "DEMO-SUC-004-REV-001",
+      "rating": 3,
+      "text": "La fila avanzo lento durante el almuerzo.",
+      "publishedAtUtc": "2026-07-20T18:00:00Z",
+      "authorDisplayName": "Cliente demo 10",
+      "language": "es",
+      "sourceUrl": null
+    },
+    {
+      "externalReviewId": "DEMO-SUC-004-REV-002",
+      "rating": 2,
+      "text": "El pedido llego incompleto y costo corregirlo.",
+      "publishedAtUtc": "2026-07-28T18:25:00Z",
+      "authorDisplayName": "Cliente demo 11",
+      "language": "es",
+      "sourceUrl": null
+    },
+    {
+      "externalReviewId": "DEMO-SUC-004-REV-003",
+      "rating": 4,
+      "text": "El local estaba limpio y el producto estuvo bien.",
+      "publishedAtUtc": "2026-07-30T15:40:00Z",
+      "authorDisplayName": "Cliente demo 12",
+      "language": "es",
+      "sourceUrl": null
+    }
+  ]
+}

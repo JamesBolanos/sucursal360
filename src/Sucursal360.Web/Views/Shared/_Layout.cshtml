@@ -30,6 +30,15 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Dashboard" asp-action="Index">Panel</a>
                             </li>
                         }
+                        @if (User.IsInRole(Sucursal360.Web.Security.AppRoles.Administrator))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="AdminBranches" asp-action="Index">Sucursales</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="AdminIntegrations" asp-action="Index">Integraciones</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
