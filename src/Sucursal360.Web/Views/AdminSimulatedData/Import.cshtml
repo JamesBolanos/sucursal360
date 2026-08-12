@@ -1,0 +1,183 @@
+@model Sucursal360.Web.ViewModels.AdminSimulatedData.SimulatedDataImportPageViewModel
+
+@{
+    ViewData["Title"] = "Importacion simulada";
+}
+
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Administracion</p>
+        <h1>Importacion simulada</h1>
+    </div>
+    <span class="status-pill status-pill-muted">Datos simulados</span>
+</section>
+
+<section class="import-layout">
+    <div class="surface">
+        <div class="surface-header">
+            <div>
+                <h2>Archivo CSV</h2>
+                <p>Use datos ficticios. El archivo se valida completo antes de guardar cualquier fila.</p>
+            </div>
+        </div>
+
+        <form asp-action="Validate" method="post" enctype="multipart/form-data" class="import-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div>
+                <label class="form-label" for="csvFile">Seleccionar archivo</label>
+                <input class="form-control" id="csvFile" name="csvFile" type="file" accept=".csv,text/csv" />
+                <span class="text-danger">@Html.ValidationMessage("csvFile")</span>
+            </div>
+            <button type="submit" class="btn btn-primary">Validar CSV</button>
+        </form>
+
+        <div class="csv-contract">
+            <h3>Ejemplo</h3>
+            <pre><code>business_date,branch_code,net_sales,transaction_count,currency,data_origin
+2026-07-01,SUC-001,42500.00,350,NIO,SIMULATED</code></pre>
+        </div>
+    </div>
+
+    <div class="surface">
+        <div class="surface-header">
+            <div>
+                <h2>Resultado</h2>
+                <p>La confirmacion solo aparece cuando no hay errores.</p>
+            </div>
+        </div>
+
+        @if (Model.ImportResult is not null)
+        {
+            <div class="import-result">
+                <span class="status-pill status-pill-success">Importado</span>
+                <strong>@Model.ImportResult.RowCount fila(s)</strong>
+                <p>@Model.ImportResult.FileName - @Model.ImportResult.PeriodStart.ToString("yyyy-MM-dd") a @Model.ImportResult.PeriodEnd.ToString("yyyy-MM-dd")</p>
+            </div>
+        }
+        else if (Model.Preview is null)
+        {
+            <div class="empty-state">
+                <strong>No disponible</strong>
+                <p>Seleccione un archivo para validar su contenido.</p>
+            </div>
+        }
+        else if (!Model.Preview.IsValid)
+        {
+            <div class="import-result">
+                <span class="status-pill status-pill-danger">Con errores</span>
+                <strong>@Model.Preview.Errors.Count error(es)</strong>
+                <p>Corrija el archivo y vuelva a validarlo. No se guardo ninguna fila.</p>
+            </div>
+
+            <div class="table-responsive mt-3">
+                <table class="table align-middle dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Fila</th>
+                            <th>Campo</th>
+                            <th>Codigo</th>
+                            <th>Mensaje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var error in Model.Preview.Errors)
+                        {
+                            <tr>
+                                <td>@error.RowNumber</td>
+                                <td>@error.Field</td>
+                                <td><code>@error.ErrorCode</code></td>
+                                <td>@error.Message</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="import-result">
+                <span class="status-pill status-pill-success">Valido</span>
+                <strong>@Model.Preview.RowCount fila(s)</strong>
+                <p>@Model.Preview.PeriodStart?.ToString("yyyy-MM-dd") a @Model.Preview.PeriodEnd?.ToString("yyyy-MM-dd") - @string.Join(", ", Model.Preview.BranchCodes)</p>
+            </div>
+
+            <form asp-action="Confirm" method="post" class="mt-3">
+                <input type="hidden" name="encodedCsvContent" value="@Model.EncodedCsvContent" />
+                <input type="hidden" name="fileName" value="@Model.Preview.FileName" />
+                <input type="hidden" name="fileSizeBytes" value="@Model.FileSizeBytes" />
+                <button type="submit" class="btn btn-primary">Confirmar importacion</button>
+            </form>
+
+            <div class="table-responsive mt-3">
+                <table class="table align-middle dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Fila</th>
+                            <th>Fecha</th>
+                            <th>Sucursal</th>
+                            <th>Ventas</th>
+                            <th>Transacciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.Preview.Rows.Take(20))
+                        {
+                            <tr>
+                                <td>@row.RowNumber</td>
+                                <td>@row.BusinessDate.ToString("yyyy-MM-dd")</td>
+                                <td>@row.BranchCode - @row.BranchName</td>
+                                <td>@row.Currency @row.NetSales.ToString("N2")</td>
+                                <td>@row.TransactionCount.ToString("N0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>
+
+<section class="surface mt-3">
+    <div class="surface-header">
+        <div>
+            <h2>Importaciones recientes</h2>
+            <p>Ultimos lotes confirmados de datos simulados.</p>
+        </div>
+    </div>
+
+    @if (Model.RecentImports.Count == 0)
+    {
+        <div class="empty-state">
+            <strong>No disponible</strong>
+            <p>Todavia no hay importaciones simuladas.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Fecha importacion</th>
+                        <th>Archivo</th>
+                        <th>Filas</th>
+                        <th>Periodo</th>
+                        <th>Usuario</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var import in Model.RecentImports)
+                    {
+                        <tr>
+                            <td>@import.ImportedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@import.FileName</td>
+                            <td>@import.RowCount</td>
+                            <td>@import.PeriodStart.ToString("yyyy-MM-dd") a @import.PeriodEnd.ToString("yyyy-MM-dd")</td>
+                            <td>@import.ImportedByEmail</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

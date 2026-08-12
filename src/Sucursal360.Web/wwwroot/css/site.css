@@ -456,6 +456,12 @@ body {
   font-size: 1rem;
 }
 
+.helper-text {
+  margin: 0 0 .5rem;
+  color: var(--color-muted);
+  font-size: .875rem;
+}
+
 .category-counts div {
   display: flex;
   align-items: center;
@@ -574,6 +580,82 @@ body {
   flex: 0 0 auto;
 }
 
+.import-layout {
+  display: grid;
+  grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.import-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.csv-contract {
+  margin-top: 1.25rem;
+}
+
+.csv-contract h3 {
+  margin: 0 0 .5rem;
+  font-size: 1rem;
+}
+
+.csv-contract pre {
+  margin: 0;
+  padding: .85rem;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.import-result {
+  display: grid;
+  gap: .4rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.import-result strong {
+  font-size: 1.4rem;
+}
+
+.import-result p {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.report-panel {
+  max-width: 920px;
+}
+
+.report-filter-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.report-sheet-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.report-sheet-list span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: .35rem .65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-muted);
+  background: #fbfcfe;
+  font-size: .85rem;
+  font-weight: 700;
+}
+
 .empty-state {
   padding: 1rem;
   border: 1px dashed var(--color-border);
@@ -671,6 +753,10 @@ body {
   }
 
   .reviews-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .import-layout {
     grid-template-columns: 1fr;
   }
 

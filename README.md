@@ -1,28 +1,19 @@
 # Sucursal 360
 
-Sucursal 360 es una aplicacion web demo para una cadena ficticia de cafeterias llamada Cafe Horizonte.
-El objetivo es comparar sucursales mediante indicadores de reputacion, resenas, tendencias, categorias
-manuales y metricas operativas simuladas.
+Sucursal 360 es una aplicacion web local-first en ASP.NET Core MVC para una cadena ficticia de cafeterias llamada Cafe Horizonte. El demo consolida reputacion publica, categorias manuales de resenas, metricas POS/ERP simuladas y reportes Excel.
 
-El proyecto es un demo de portafolio. No es un POS, ERP, CRM, sistema de inventario, facturacion,
-pagos, alertas ni clasificacion automatica con IA.
+Este es un proyecto de portafolio/demo. No es un POS, ERP, CRM, sistema de inventario, facturacion, pagos, alertas, gestion de tareas ni analisis automatico de sentimiento con IA.
 
-## Stack Actual
+## Stack
 
 - .NET 10
 - ASP.NET Core MVC con Razor Views
 - ASP.NET Core Identity
-- EF Core
-- SQLite para desarrollo local
+- EF Core con SQLite para desarrollo local
+- ClosedXML para exportacion Excel
 - MSTest
 
-## Requisitos Locales
-
-- .NET SDK 10
-- `dotnet-ef` 10.x
-- SQLite 3
-
-Verificar herramientas:
+## Herramientas Locales
 
 ```bash
 dotnet --version
@@ -30,15 +21,67 @@ dotnet ef --version
 sqlite3 --version
 ```
 
-## Comandos
+Esperado: .NET SDK 10.x, `dotnet-ef` 10.x y SQLite 3.
 
-En este ambiente se recomienda usar `-m:1 -nr:false` para evitar problemas con workers de MSBuild.
+## Configuracion
 
-Restaurar:
+Restaurar, compilar y aplicar migraciones:
 
 ```bash
 dotnet restore Sucursal360.slnx -m:1 -nr:false
+dotnet build Sucursal360.slnx -m:1 -nr:false --no-restore
+dotnet ef database update --project src/Sucursal360.Web/Sucursal360.Web.csproj
 ```
+
+Configurar la contrasena local de usuarios demo con User Secrets:
+
+```bash
+dotnet user-secrets set "SeedUsers:DefaultPassword" "<tu-password-local>" --project src/Sucursal360.Web/Sucursal360.Web.csproj
+```
+
+Politica de contrasena: al menos 10 caracteres, mayuscula, minuscula y digito. Caracter no alfanumerico es opcional.
+
+Ejecutar la aplicacion:
+
+```bash
+dotnet run --project src/Sucursal360.Web/Sucursal360.Web.csproj
+```
+
+URLs locales comunes:
+
+- `http://localhost:5256`
+- `https://localhost:7017`
+
+## Usuarios Demo
+
+La aplicacion crea o actualiza estos usuarios solo en ambiente `Development` y solo cuando existe `SeedUsers:DefaultPassword`:
+
+- `admin@sucursal360.local` -> `Administrador`
+- `corporativo@sucursal360.local` -> `GerenteCorporativo`
+- `sucursal@sucursal360.local` -> `GerenteSucursal`, asignado a `SUC-001`
+
+## Flujo Demo
+
+1. Iniciar sesion como `admin@sucursal360.local`.
+2. Abrir `Integraciones`.
+3. Click en `Sincronizar todas` para cargar datos publicos demo.
+4. Abrir `Panel` para comparar sucursales, ranking e insights.
+5. Click en `Ver` sobre una sucursal para revisar historial y ultima sincronizacion.
+6. Abrir `Resenas` para filtrar comentarios y asignar categorias manuales.
+7. Abrir `Datos simulados`.
+8. Subir [samples/simulated-operational-metrics.csv](samples/simulated-operational-metrics.csv), validar y confirmar.
+9. Volver a `Panel` y al detalle de sucursal para ver metricas operativas.
+10. Abrir `Reportes` y exportar el libro Excel gerencial.
+
+## Notas De Datos
+
+- Cafe Horizonte, sucursales, snapshots publicos, resenas y valores operativos son ficticios.
+- Las categorias de resenas son temas, no sentimiento. Las estrellas indican si la resena es positiva o negativa.
+- Las metricas operativas siempre se muestran como `Datos simulados`.
+- Google Places no se usa en el recorrido local por defecto.
+- Los archivos SQLite locales se ignoran por Git mediante `src/**/app.db*`.
+
+## Verificacion
 
 Compilar:
 
@@ -52,71 +95,11 @@ Ejecutar pruebas:
 dotnet test Sucursal360.slnx -m:1 -nr:false --no-restore --no-build
 ```
 
-Ejecutar la aplicacion:
+## Rutas Importantes
 
-```bash
-dotnet run --project src/Sucursal360.Web/Sucursal360.Web.csproj
-```
-
-URLs locales:
-
-- `http://localhost:5256`
-- `https://localhost:7017`
-
-## Base De Datos
-
-La configuracion actual usa SQLite:
-
-```json
-"DefaultConnection": "DataSource=app.db;Cache=Shared"
-```
-
-Crear una migracion:
-
-```bash
-dotnet ef migrations add <Nombre> --project src/Sucursal360.Web/Sucursal360.Web.csproj
-```
-
-Aplicar migraciones:
-
-```bash
-dotnet ef database update --project src/Sucursal360.Web/Sucursal360.Web.csproj
-```
-
-## Usuarios Demo Locales
-
-La aplicacion crea usuarios demo solo en ambiente `Development` y solo si existe una contrasena local
-en User Secrets. No se guardan contrasenas funcionales en el repositorio.
-
-Configurar una contrasena local:
-
-```bash
-dotnet user-secrets set "SeedUsers:DefaultPassword" "<tu-password-local>" --project src/Sucursal360.Web/Sucursal360.Web.csproj
-```
-
-Al iniciar la aplicacion en `Development`, se crean o actualizan estos usuarios:
-
-- `admin@sucursal360.local` -> `Administrador`
-- `corporativo@sucursal360.local` -> `GerenteCorporativo`
-- `sucursal@sucursal360.local` -> `GerenteSucursal`, asignado a `SUC-001`
-
-## Documentacion Principal
-
-- `AGENTS.md`: guia operativa para agentes de IA.
-- `docs/02-alcance-objetivos.md`: alcance y objetivos.
-- `docs/06-decisiones-supuestos-riesgos.md`: decisiones y riesgos.
-- `docs/10-modelo-dominio-diccionario.md`: modelo de dominio.
-- `docs/11-modelo-datos-dbml.md`: modelo de datos.
-- `docs/15-plan-implementacion-ia.md`: plan base.
-- `docs/16-plan-implementacion-ejecutable.md`: plan operativo por iteraciones.
-
-## Siguiente Iteracion
-
-La siguiente iteracion recomendada es crear el dominio real del demo:
-
-- `ApplicationUser`
-- entidades principales
-- enums canonicos
-- configuraciones EF Core
-- migracion inicial de negocio
-- seed de roles, categorias y cinco sucursales ficticias
+- `src/Sucursal360.Web`: aplicacion MVC
+- `tests/Sucursal360.Tests`: suite MSTest
+- `samples/simulated-operational-metrics.csv`: CSV demo para importacion
+- `docs/16-plan-implementacion-ejecutable.md`: plan por iteraciones
+- `docs/17-guion-demo.md`: guion demo de 5-7 minutos
+- `AGENTS.md`: guia operativa para agentes de IA

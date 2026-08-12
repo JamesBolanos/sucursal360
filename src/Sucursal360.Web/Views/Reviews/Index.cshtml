@@ -17,7 +17,7 @@
         <div class="surface-header">
             <div>
                 <h2>Filtros</h2>
-                <p>Sucursal, fecha, calificacion y categoria.</p>
+                <p>Las categorias son temas; las estrellas indican si la senal es positiva o negativa.</p>
             </div>
         </div>
 
@@ -74,6 +74,7 @@
 
         <div class="category-counts">
             <h3>Conteos</h3>
+            <p class="helper-text">Una resena puede pertenecer a varias categorias; los conteos no son porcentajes exclusivos.</p>
             @foreach (var category in Model.CategoryCounts)
             {
                 <div>
@@ -130,7 +131,7 @@
                         <input type="hidden" name="ToDate" value="@FormatDateInput(Model.Filters.ToDate)" />
 
                         <fieldset>
-                            <legend>Categorias</legend>
+                            <legend>Clasificacion manual</legend>
                             <div class="category-checkbox-grid">
                                 @foreach (var category in Model.Categories)
                                 {

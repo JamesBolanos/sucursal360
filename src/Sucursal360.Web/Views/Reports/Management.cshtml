@@ -1,0 +1,81 @@
+@model Sucursal360.Web.ViewModels.Reports.ManagementReportPageViewModel
+
+@{
+    ViewData["Title"] = "Reporte gerencial";
+}
+
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Reporte</p>
+        <h1>Reporte gerencial</h1>
+    </div>
+    <span class="status-pill status-pill-info">Excel</span>
+</section>
+
+<section class="surface report-panel">
+    <div class="surface-header">
+        <div>
+            <h2>Filtros de exportacion</h2>
+            <p>El archivo incluye fuentes, fecha de corte, categorias y etiqueta de datos simulados.</p>
+        </div>
+    </div>
+
+    <form asp-action="Export" method="get" class="report-filter-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-grid">
+            <div>
+                <label class="form-label" for="FromDate">Desde</label>
+                <input class="form-control" id="FromDate" name="FromDate" type="date" value="@FormatDateInput(Model.Filters.FromDate)" />
+            </div>
+            <div>
+                <label class="form-label" for="ToDate">Hasta</label>
+                <input class="form-control" id="ToDate" name="ToDate" type="date" value="@FormatDateInput(Model.Filters.ToDate)" />
+                <span class="text-danger">@Html.ValidationMessage("ToDate")</span>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div>
+                <label class="form-label" for="BranchId">Sucursal</label>
+                <select class="form-select" id="BranchId" name="BranchId">
+                    <option value="">Todas</option>
+                    @foreach (var branch in Model.Branches)
+                    {
+                        <option value="@branch.Id" selected="@(Model.Filters.BranchId == branch.Id)">@branch.Code - @branch.Name</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="form-label" for="CategoryId">Categoria</label>
+                <select class="form-select" id="CategoryId" name="CategoryId">
+                    <option value="">Todas</option>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.Id" selected="@(Model.Filters.CategoryId == category.Id)">@category.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="report-sheet-list">
+            <span>Resumen</span>
+            <span>Sucursales</span>
+            <span>Tendencias</span>
+            <span>Categorias</span>
+            <span>Operacion_Simulada</span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Exportar Excel</button>
+            <a class="btn btn-outline-secondary" asp-controller="Reports" asp-action="Management">Limpiar</a>
+        </div>
+    </form>
+</section>
+
+@functions {
+    private static string FormatDateInput(DateOnly? value)
+    {
+        return value?.ToString("yyyy-MM-dd") ?? string.Empty;
+    }
+}
