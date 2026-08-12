@@ -1,0 +1,174 @@
+@model Sucursal360.Web.ViewModels.Reviews.ReviewsIndexViewModel
+
+@{
+    ViewData["Title"] = "Resenas";
+}
+
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Analisis manual</p>
+        <h1>Resenas</h1>
+    </div>
+    <span class="status-pill status-pill-info">@Model.Reviews.Count resultado(s)</span>
+</section>
+
+<section class="reviews-layout">
+    <aside class="surface">
+        <div class="surface-header">
+            <div>
+                <h2>Filtros</h2>
+                <p>Sucursal, fecha, calificacion y categoria.</p>
+            </div>
+        </div>
+
+        <form method="get" class="review-filter-form">
+            <div>
+                <label class="form-label" for="BranchId">Sucursal</label>
+                <select class="form-select" id="BranchId" name="BranchId">
+                    <option value="">Todas</option>
+                    @foreach (var branch in Model.Branches)
+                    {
+                        <option value="@branch.Id" selected="@(Model.Filters.BranchId == branch.Id)">@branch.Code - @branch.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label" for="Rating">Calificacion</label>
+                <select class="form-select" id="Rating" name="Rating">
+                    <option value="">Todas</option>
+                    @for (var rating = 5; rating >= 1; rating--)
+                    {
+                        <option value="@rating" selected="@(Model.Filters.Rating == rating)">@rating</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label" for="CategoryId">Categoria</label>
+                <select class="form-select" id="CategoryId" name="CategoryId">
+                    <option value="">Todas</option>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.Id" selected="@(Model.Filters.CategoryId == category.Id)">@category.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-grid compact-form-grid">
+                <div>
+                    <label class="form-label" for="FromDate">Desde</label>
+                    <input class="form-control" id="FromDate" name="FromDate" type="date" value="@FormatDateInput(Model.Filters.FromDate)" />
+                </div>
+                <div>
+                    <label class="form-label" for="ToDate">Hasta</label>
+                    <input class="form-control" id="ToDate" name="ToDate" type="date" value="@FormatDateInput(Model.Filters.ToDate)" />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a class="btn btn-outline-secondary" asp-controller="Reviews" asp-action="Index">Limpiar</a>
+            </div>
+        </form>
+
+        <div class="category-counts">
+            <h3>Conteos</h3>
+            @foreach (var category in Model.CategoryCounts)
+            {
+                <div>
+                    <span>@category.Name</span>
+                    <strong>@category.Count</strong>
+                </div>
+            }
+        </div>
+    </aside>
+
+    <section class="review-list">
+        @if (Model.Reviews.Count == 0)
+        {
+            <div class="surface">
+                <div class="empty-state">
+                    <strong>No disponible</strong>
+                    <p>No hay resenas para los filtros actuales. Sincronice datos demo o ajuste los filtros.</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var review in Model.Reviews)
+            {
+                <article class="surface review-card">
+                    <div class="review-card-header">
+                        <div>
+                            <span class="status-pill status-pill-muted">@review.BranchCode</span>
+                            <h2>@review.BranchName</h2>
+                        </div>
+                        <div class="review-rating">
+                            <strong>@FormatRating(review.Rating)</strong>
+                            <span class="star-rating" aria-label="@FormatRatingLabel(review.Rating)">
+                                @for (var star = 1; star <= 5; star++)
+                                {
+                                    <span class="@(review.Rating >= star ? "star-filled" : "star-empty")" aria-hidden="true">&#9733;</span>
+                                }
+                            </span>
+                            <span>@FormatDate(review.PublishedAtUtc)</span>
+                        </div>
+                    </div>
+
+                    <p class="review-text">@review.Text</p>
+                    <div class="review-meta">
+                        <span>@review.AuthorDisplayName</span>
+                        <span>@review.Provider</span>
+                    </div>
+
+                    <form asp-controller="Reviews" asp-action="UpdateCategories" asp-route-reviewId="@review.Id" method="post" class="category-form">
+                        <input type="hidden" name="BranchId" value="@Model.Filters.BranchId" />
+                        <input type="hidden" name="Rating" value="@Model.Filters.Rating" />
+                        <input type="hidden" name="CategoryId" value="@Model.Filters.CategoryId" />
+                        <input type="hidden" name="FromDate" value="@FormatDateInput(Model.Filters.FromDate)" />
+                        <input type="hidden" name="ToDate" value="@FormatDateInput(Model.Filters.ToDate)" />
+
+                        <fieldset>
+                            <legend>Categorias</legend>
+                            <div class="category-checkbox-grid">
+                                @foreach (var category in Model.Categories)
+                                {
+                                    var inputId = $"category-{review.Id}-{category.Id}";
+                                    <label for="@inputId">
+                                        <input id="@inputId" type="checkbox" name="SelectedCategoryIds" value="@category.Id" checked="@review.SelectedCategoryIds.Contains(category.Id)" />
+                                        <span>@category.Name</span>
+                                    </label>
+                                }
+                            </div>
+                        </fieldset>
+
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Guardar categorias</button>
+                    </form>
+                </article>
+            }
+        }
+    </section>
+</section>
+
+@functions {
+    private static string FormatRating(byte? rating)
+    {
+        return rating is null ? "No disponible" : rating.Value.ToString();
+    }
+
+    private static string FormatRatingLabel(byte? rating)
+    {
+        return rating is null ? "Calificacion no disponible" : $"{rating} de 5 estrellas";
+    }
+
+    private static string FormatDate(DateTimeOffset? value)
+    {
+        return value is null ? "No disponible" : value.Value.ToLocalTime().ToString("yyyy-MM-dd");
+    }
+
+    private static string FormatDateInput(DateOnly? value)
+    {
+        return value?.ToString("yyyy-MM-dd") ?? string.Empty;
+    }
+}

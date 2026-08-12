@@ -1,4 +1,4 @@
-@model Sucursal360.Web.Controllers.BranchDetailsViewModel
+@model Sucursal360.Web.ViewModels.Branches.BranchDetailsViewModel
 
 @{
     ViewData["Title"] = Model.Name;
@@ -9,34 +9,279 @@
         <p class="eyebrow">@Model.Code</p>
         <h1>@Model.Name</h1>
     </div>
-    <span class="status-pill status-pill-info">DEMO</span>
+    <div class="page-actions">
+        @if (User.IsInRole(Sucursal360.Web.Security.AppRoles.Administrator) || User.IsInRole(Sucursal360.Web.Security.AppRoles.CorporateManager))
+        {
+            <a class="btn btn-outline-secondary" asp-controller="Dashboard" asp-action="Index">Panel</a>
+        }
+        <span class="status-pill @(Model.IsActive ? "status-pill-success" : "status-pill-muted")">@(Model.IsActive ? "Activa" : "Inactiva")</span>
+    </div>
+</section>
+
+<section class="branch-overview mb-3">
+    <div class="surface">
+        <div class="surface-header">
+            <div>
+                <h2>Ultimo snapshot publico</h2>
+                <p>Proveedor: @Model.Provider - Identificador: @Model.ExternalPlaceId</p>
+            </div>
+            <span class="status-pill status-pill-info">@(Model.LatestSnapshot?.SourceLabel ?? "No disponible")</span>
+        </div>
+
+        @if (Model.LatestSnapshot is null)
+        {
+            <div class="empty-state">
+                <strong>No disponible</strong>
+                <p>Esta sucursal todavia no tiene datos sincronizados.</p>
+            </div>
+        }
+        else
+        {
+            <dl class="detail-list snapshot-summary">
+                <div>
+                    <dt>Rating</dt>
+                    <dd>@FormatDecimal(Model.LatestSnapshot.Rating)</dd>
+                    <small>@FormatDelta(Model.LatestSnapshot.RatingDelta, "0.00") vs anterior</small>
+                </div>
+                <div>
+                    <dt>Resenas</dt>
+                    <dd>@FormatNumber(Model.LatestSnapshot.ReviewCount)</dd>
+                    <small>@FormatDelta(Model.LatestSnapshot.ReviewCountDelta, "0") vs anterior</small>
+                </div>
+                <div>
+                    <dt>Estado publico</dt>
+                    <dd>@Model.LatestSnapshot.BusinessStatus</dd>
+                    <small>@FormatDate(Model.LatestSnapshot.RetrievedAtUtc)</small>
+                </div>
+            </dl>
+
+            <div class="address-panel">
+                <strong>@Model.LatestSnapshot.DisplayName</strong>
+                <span>@Model.LatestSnapshot.Address</span>
+            </div>
+        }
+    </div>
+
+    <div class="surface">
+        <div class="surface-header">
+            <div>
+                <h2>Ultima sincronizacion</h2>
+                <p>Bitacora tecnica para seguimiento.</p>
+            </div>
+        </div>
+
+        @if (Model.LastIntegrationRun is null)
+        {
+            <div class="empty-state">
+                <strong>No disponible</strong>
+                <p>No hay ejecuciones registradas para esta sucursal.</p>
+            </div>
+        }
+        else
+        {
+            <dl class="run-summary">
+                <div>
+                    <dt>Estado</dt>
+                    <dd><span class="status-pill @RunStatusClass(Model.LastIntegrationRun.Status)">@RunStatusLabel(Model.LastIntegrationRun.Status)</span></dd>
+                </div>
+                <div>
+                    <dt>Correlacion</dt>
+                    <dd><code>@Model.LastIntegrationRun.CorrelationId</code></dd>
+                </div>
+                <div>
+                    <dt>Registros</dt>
+                    <dd>@Model.LastIntegrationRun.RecordsStored / @Model.LastIntegrationRun.RecordsReceived</dd>
+                </div>
+                <div>
+                    <dt>Inicio</dt>
+                    <dd>@FormatDate(Model.LastIntegrationRun.StartedAtUtc)</dd>
+                </div>
+                <div>
+                    <dt>Codigo</dt>
+                    <dd>@(Model.LastIntegrationRun.ErrorCode ?? "No disponible")</dd>
+                </div>
+                <div>
+                    <dt>Mensaje</dt>
+                    <dd>@Model.LastIntegrationRun.UserMessage</dd>
+                </div>
+            </dl>
+        }
+    </div>
+</section>
+
+<section class="surface mb-3">
+    <div class="surface-header">
+        <div>
+            <h2>Tendencia publica</h2>
+            <p>Ultimos snapshots ordenados cronologicamente.</p>
+        </div>
+    </div>
+
+    @if (Model.Trend.Count == 0)
+    {
+        <div class="empty-state">
+            <strong>No disponible</strong>
+            <p>Sin historial para graficar.</p>
+        </div>
+    }
+    else
+    {
+        <div class="trend-grid">
+            @foreach (var point in Model.Trend)
+            {
+                <article class="trend-point">
+                    <span>@point.RetrievedAtUtc.ToLocalTime().ToString("MM-dd HH:mm")</span>
+                    <div class="trend-bars">
+                        <div>
+                            <small>Rating</small>
+                            <span class="rating-bar"><span style="width: @point.RatingPercent%;"></span></span>
+                        </div>
+                        <div>
+                            <small>Resenas</small>
+                            <span class="review-bar"><span style="width: @point.ReviewCountPercent%;"></span></span>
+                        </div>
+                    </div>
+                    <strong>@FormatDecimal(point.Rating)</strong>
+                    <small>@FormatNumber(point.ReviewCount) resenas</small>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+<section class="surface mb-3">
+    <div class="surface-header">
+        <div>
+            <h2>Historico de snapshots</h2>
+            <p>Tabla equivalente a la tendencia visual.</p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle dashboard-table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Proveedor</th>
+                    <th>Nombre publico</th>
+                    <th>Estado</th>
+                    <th>Rating</th>
+                    <th>Resenas</th>
+                    <th>Direccion</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var snapshot in Model.SnapshotHistory)
+                {
+                    <tr>
+                        <td>@FormatDate(snapshot.RetrievedAtUtc)</td>
+                        <td>@snapshot.Provider</td>
+                        <td>@snapshot.DisplayName</td>
+                        <td>@snapshot.BusinessStatus</td>
+                        <td class="metric-value">@FormatDecimal(snapshot.Rating)</td>
+                        <td class="metric-value">@FormatNumber(snapshot.ReviewCount)</td>
+                        <td>@snapshot.Address</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </section>
 
 <section class="surface">
     <div class="surface-header">
         <div>
-            <h2>Detalle de sucursal</h2>
-            <p>Placeholder de acceso y alcance. El historico y las metricas se agregaran despues de la sincronizacion demo.</p>
+            <h2>Operacion simulada</h2>
+            <p>Datos internos separados de la reputacion publica.</p>
         </div>
+        <span class="status-pill status-pill-muted">@Model.OperationalSummary.SourceLabel</span>
     </div>
 
-    <dl class="detail-list">
-        <div>
-            <dt>Estado</dt>
-            <dd>@(Model.IsActive ? "Activa" : "Inactiva")</dd>
-        </div>
-        <div>
-            <dt>Proveedor</dt>
-            <dd>@Model.Provider</dd>
-        </div>
-        <div>
-            <dt>Identificador externo</dt>
-            <dd>@(Model.ExternalPlaceId ?? "No disponible")</dd>
-        </div>
-    </dl>
-
-    @if (User.IsInRole(Sucursal360.Web.Security.AppRoles.Administrator) || User.IsInRole(Sucursal360.Web.Security.AppRoles.CorporateManager))
+    @if (!Model.OperationalSummary.HasData)
     {
-        <a class="btn btn-outline-secondary" asp-controller="Dashboard" asp-action="Index">Volver al panel</a>
+        <div class="empty-state">
+            <strong>No disponible</strong>
+            <p>La importacion CSV simulada se habilitara en una iteracion posterior.</p>
+        </div>
+    }
+    else
+    {
+        <dl class="detail-list">
+            <div>
+                <dt>Ventas netas</dt>
+                <dd>@Model.OperationalSummary.Currency @FormatDecimal(Model.OperationalSummary.NetSales)</dd>
+            </div>
+            <div>
+                <dt>Transacciones</dt>
+                <dd>@FormatNumber(Model.OperationalSummary.TransactionCount)</dd>
+            </div>
+            <div>
+                <dt>Ticket promedio</dt>
+                <dd>@Model.OperationalSummary.Currency @FormatDecimal(Model.OperationalSummary.AverageTicket)</dd>
+            </div>
+        </dl>
     }
 </section>
+
+@functions {
+    private static string FormatDecimal(decimal? value)
+    {
+        return value is null ? "No disponible" : value.Value.ToString("0.00");
+    }
+
+    private static string FormatNumber(int? value)
+    {
+        return value is null ? "No disponible" : value.Value.ToString("N0");
+    }
+
+    private static string FormatDate(DateTimeOffset? value)
+    {
+        return value is null ? "No disponible" : value.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+    }
+
+    private static string FormatDelta(decimal? value, string format)
+    {
+        if (value is null)
+        {
+            return "No disponible";
+        }
+
+        var prefix = value > 0 ? "+" : string.Empty;
+        return $"{prefix}{value.Value.ToString(format)}";
+    }
+
+    private static string FormatDelta(int? value, string format)
+    {
+        if (value is null)
+        {
+            return "No disponible";
+        }
+
+        var prefix = value > 0 ? "+" : string.Empty;
+        return $"{prefix}{value.Value.ToString(format)}";
+    }
+
+    private static string RunStatusLabel(string status)
+    {
+        return status switch
+        {
+            "Successful" => "Exitoso",
+            "Partial" => "Parcial",
+            "Failed" => "Fallido",
+            "InProgress" => "En progreso",
+            _ => status
+        };
+    }
+
+    private static string RunStatusClass(string status)
+    {
+        return status switch
+        {
+            "Successful" => "status-pill-success",
+            "Partial" => "status-pill-warning",
+            "Failed" => "status-pill-danger",
+            "InProgress" => "status-pill-info",
+            _ => "status-pill-muted"
+        };
+    }
+}

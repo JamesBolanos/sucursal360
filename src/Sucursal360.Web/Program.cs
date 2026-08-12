@@ -5,6 +5,7 @@ using Sucursal360.Web.Data;
 using Sucursal360.Web.Integrations.Abstractions;
 using Sucursal360.Web.Integrations.Demo;
 using Sucursal360.Web.Security;
+using Sucursal360.Web.Services.Reviews;
 using Sucursal360.Web.Services.Synchronization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,6 +42,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<IBranchAccessService, BranchAccessService>();
 builder.Services.Configure<DemoPublicDataOptions>(builder.Configuration.GetSection("PublicData:Demo"));
 builder.Services.AddScoped<IPublicBranchDataProvider, DemoPublicBranchDataProvider>();
+builder.Services.AddScoped<IReviewCategorizationService, ReviewCategorizationService>();
 builder.Services.AddScoped<IBranchSynchronizationService, BranchSynchronizationService>();
 builder.Services.AddControllersWithViews(options =>
 {

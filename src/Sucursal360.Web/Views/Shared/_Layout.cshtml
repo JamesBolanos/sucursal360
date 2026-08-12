@@ -26,11 +26,17 @@
                         </li>
                         @if (User.IsInRole(Sucursal360.Web.Security.AppRoles.Administrator) || User.IsInRole(Sucursal360.Web.Security.AppRoles.CorporateManager))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Dashboard" asp-action="Index">Panel</a>
-                            </li>
-                        }
-                        @if (User.IsInRole(Sucursal360.Web.Security.AppRoles.Administrator))
+	                            <li class="nav-item">
+	                                <a class="nav-link text-dark" asp-area="" asp-controller="Dashboard" asp-action="Index">Panel</a>
+	                            </li>
+	                        }
+	                        @if (User.Identity?.IsAuthenticated == true)
+	                        {
+	                            <li class="nav-item">
+	                                <a class="nav-link text-dark" asp-area="" asp-controller="Reviews" asp-action="Index">Resenas</a>
+	                            </li>
+	                        }
+	                        @if (User.IsInRole(Sucursal360.Web.Security.AppRoles.Administrator))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="AdminBranches" asp-action="Index">Sucursales</a>
