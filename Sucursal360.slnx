@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Sucursal360.Web/Sucursal360.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Sucursal360.Tests/Sucursal360.Tests.csproj" />
+  </Folder>
+</Solution>
