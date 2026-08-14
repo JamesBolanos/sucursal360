@@ -50,7 +50,8 @@ Traducir el problema gerencial en requisitos verificables para la primera versi�
 | RN-05 | Los indicadores simulados deben distinguirse claramente de los datos externos. | Alta |
 | RN-06 | La gerencia debe poder generar un reporte uniforme para seguimiento. | Alta |
 | RN-07 | El fallo de una fuente externa no debe impedir la consulta de la última información almacenada. | Alta |
-| RN-08 | El administrador debe poder diagnosticar el resultado de las sincronizaciones. | Media |
+| RN-08 | La gerencia debe poder cruzar percepcion del cliente, categorias internas y metricas operativas para detectar riesgos y oportunidades por sucursal. | Alta |
+| RN-09 | El administrador debe poder diagnosticar el resultado de las sincronizaciones. | Media |
 
 ## 5. Requisitos funcionales
 
@@ -88,6 +89,10 @@ Traducir el problema gerencial en requisitos verificables para la primera versi�
 | RF-13 | El usuario podrá ordenar y filtrar sucursales. | Se filtra al menos por estado, rango de calificación y fecha de actualización. |
 | RF-14 | El sistema mostrará el historial de calificación y cantidad de reseñas. | La gráfica o tabla utiliza instantáneas fechadas de la sucursal. |
 | RF-15 | El detalle mostrará datos públicos y operativos simulados en secciones separadas. | La sección simulada utiliza una etiqueta persistente y visible. |
+| RF-26 | El panel gerencial comparará sucursales combinando datos de reseñas, categorías manuales y operación simulada. | La tabla principal muestra calificación, reseñas, categoría principal, ventas, transacciones, ticket promedio y nivel de atención. |
+| RF-27 | El panel gerencial permitirá filtrar por período, sucursal, categoría, calificación y métrica operativa. | Al aplicar filtros, resumen, comparación, categorías y gráficas se actualizan de forma coherente. |
+| RF-28 | El sistema mostrará una matriz de categoría contra desempeño operativo. | Cada categoría muestra cantidad de reseñas, calificación promedio, sucursales afectadas y métricas operativas del período. |
+| RF-29 | El sistema generará recomendaciones gerenciales por reglas transparentes. | Las recomendaciones indican la señal usada, no afirman causalidad y conservan las etiquetas de fuente. |
 
 ### 5.5 Reseñas y categorías
 
@@ -147,6 +152,8 @@ Traducir el problema gerencial en requisitos verificables para la primera versi�
 | RB-10 | El ticket promedio simulado será ventas netas simuladas dividido entre transacciones simuladas; si no existen transacciones se mostrará sin valor. |
 | RB-11 | Las variaciones se calcularán solamente entre instantáneas comparables de la misma sucursal y proveedor. |
 | RB-12 | Toda exportación indicará fecha de corte, fuente y naturaleza simulada de los indicadores internos. |
+| RB-13 | Una categoría no implica sentimiento por sí sola; la calificación de la reseña determina si la señal se interpreta como positiva, neutra o negativa. |
+| RB-14 | Las recomendaciones del tablero son reglas de apoyo gerencial y no prueban causalidad entre reseñas y ventas. |
 
 ## 8. Historias de usuario prioritarias
 
@@ -174,18 +181,26 @@ Como administrador, quiero conocer el resultado de cada sincronización para res
 
 Como evaluador del demo, quiero ver indicadores operativos simulados claramente identificados para comprender cómo se incorporaría un POS o ERP real.
 
+### HU-07 - Comparar experiencia contra operación
+
+Como gerente corporativo, quiero cruzar categorías de reseñas con ventas, transacciones y ticket promedio para priorizar acciones por sucursal.
+
+### HU-08 - Detectar riesgos y oportunidades
+
+Como gerente corporativo, quiero ver recomendaciones basadas en reglas para identificar sucursales con baja calificación, bajo desempeño, quejas recurrentes o datos faltantes.
+
 ## 9. Trazabilidad inicial
 
 | Objetivo | Requisitos relacionados | Evidencia futura |
 |---|---|---|
-| Comparar sucursales | RN-01, RF-12 a RF-15 | Prueba de aceptación del panel |
+| Comparar sucursales | RN-01, RF-12 a RF-15, RF-26 a RF-29 | Prueba de aceptación del panel analitico |
 | Integrar datos públicos | RN-02, RF-05 a RF-11 | Prueba de integración y bitácora |
 | Analizar reseñas | RN-04, RF-16 a RF-19 | Prueba de filtros y categorías |
 | Mostrar visión futura POS/ERP | RN-05, RF-20 a RF-22 | Verificación de etiquetas y validación |
 | Generar reportes | RN-06, RF-23 a RF-25 | Archivo Excel validado |
 | Mantener continuidad | RN-07, RNF-03 | Prueba con proveedor no disponible |
+| Cruzar experiencia y operación | RN-08, RF-26 a RF-29 | Prueba de filtros, matriz y recomendaciones |
 
 ## 10. Exclusiones confirmadas
 
 Los requisitos no incluyen respuestas a reseñas, alertas, tareas, análisis automático de sentimiento, conexión real con POS/ERP, inventario, caja, pagos ni facturación. Cualquier incorporación deberá pasar por control de cambios.
-

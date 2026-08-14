@@ -72,7 +72,7 @@ Construir una aplicación web en .NET que permita a un usuario gerencial consult
 - Aplicación web demostrativa Sucursal 360.
 - Integración con un proveedor de información pública, sujeto a viabilidad técnica y condiciones de uso.
 - Base de datos con sucursales, instantáneas de indicadores, reseñas, categorías y registros de sincronización.
-- Panel corporativo y detalle por sucursal.
+- Panel gerencial analitico y detalle por sucursal.
 - Reporte gerencial exportable a Excel.
 - Dataset operativo simulado.
 - Documentación funcional, técnica y de pruebas de las siguientes fases.
@@ -105,4 +105,3 @@ El proyecto podrá pasar a diseño de solución cuando estén definidos:
 - [Requisitos de negocio y del sistema](04-requisitos-negocio.md)
 - [Integraciones, datos, KPI y reportes](05-integraciones-kpi-datos.md)
 - [Decisiones, supuestos y riesgos](06-decisiones-supuestos-riesgos.md)
-

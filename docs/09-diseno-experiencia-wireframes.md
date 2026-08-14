@@ -39,7 +39,7 @@ flowchart TD
 | ID | Pantalla | Ruta GET principal | Acciones POST | Roles |
 |---|---|---|---|---|
 | UX-01 | Iniciar sesión | `/Identity/Account/Login` | Identity | Anónimo |
-| UX-02 | Panel corporativo | `/dashboard` | Ninguna | GerenteCorporativo, Administrador |
+| UX-02 | Panel gerencial analitico | `/dashboard` | Ninguna | GerenteCorporativo, Administrador |
 | UX-03 | Detalle de sucursal | `/branches/{id}` | Ninguna | Autorizados para la sucursal |
 | UX-04 | Reseñas | `/reviews` | `/reviews/{id}/categories` | Gerentes autorizados, Administrador |
 | UX-05 | Exportación | `/reports/management` | `/reports/management/export` | GerenteCorporativo, Administrador |
@@ -75,21 +75,34 @@ La ruta `/` redirige según rol: corporativo/administrador a `/dashboard`; geren
 
 No se ofrece autorregistro, recuperación de contraseña por correo ni proveedores sociales en V1.
 
-## 6. UX-02 — Panel corporativo
+## 6. UX-02 — Panel gerencial analítico
 
 ### Objetivo
 
-Comparar las cinco sucursales autorizadas en menos de un minuto.
+Comparar las sucursales autorizadas en menos de dos minutos, cruzando percepcion del cliente, categorias manuales y metricas operativas simuladas.
 
 ### Regiones y contenido
 
 | Orden | Región | Contenido |
 |---:|---|---|
-| 1 | Barra de filtros | Estado, calificación mínima, antigüedad máxima, orden; botones Aplicar y Limpiar. |
-| 2 | Resumen | Sucursales visibles, calificación promedio solo si se etiqueta como cálculo interno, sucursales desactualizadas. |
-| 3 | Comparación | Tabla como componente principal; tarjetas opcionales en pantallas estrechas. |
-| 4 | Datos simulados | Resumen operativo separado con banda `Datos simulados`. |
-| 5 | Acciones | Ver detalle; Exportar reporte. Sin botón de sincronización para gerentes. |
+| 1 | Barra de controles | Periodo, sucursal, categoría, calificación, métrica operativa, orden; botones Aplicar y Limpiar. |
+| 2 | Resumen ejecutivo | Señales accionables: sucursales en riesgo, mejor oportunidad, categoría negativa principal, datos faltantes. |
+| 3 | Comparación por sucursal | Tabla principal con datos de reseñas, categorías y operación simulada. |
+| 4 | Visualización experiencia-operación | Gráfica de calificación contra ventas y tabla equivalente. |
+| 5 | Matriz por categoría | Categorías manuales contra calificación, ventas, transacciones y ticket. |
+| 6 | Recomendaciones | Reglas transparentes, fuente de cada señal y acción sugerida. |
+| 7 | Acciones | Ver detalle; Ver reseñas filtradas; Exportar reporte. Sin botón de sincronización para gerentes. |
+
+### Controles
+
+| Control | Tipo | Regla |
+|---|---|---|
+| Periodo | Selector rápido + fechas | Últimos 30 días por defecto; fechas personalizadas válidas. |
+| Sucursal | Lista | `Todas` por defecto; respeta autorización. |
+| Categoría | Lista | `Todas` por defecto; incluye `Sin categoría` si aplica. |
+| Calificación | Segmentado | Todas, 1-2, 3, 4-5. |
+| Métrica | Segmentado | Ventas, transacciones, ticket promedio. |
+| Orden | Lista | Riesgo, ventas, calificación, reseñas, ticket. |
 
 ### Columnas de comparación
 
@@ -98,12 +111,41 @@ Comparar las cinco sucursales autorizadas en menos de un minuto.
 | Sucursal | Nombre y código | Sí |
 | Calificación | Valor/5 o `No disponible` | Sí |
 | Total de reseñas | Entero o `No disponible` | Sí |
-| Variación | Signo, valor y período comparable | Sí |
+| Categoría principal | Tema con mayor señal negativa o `No disponible` | Sí |
+| Ventas simuladas | Moneda con etiqueta `Datos simulados` | Sí |
+| Transacciones simuladas | Entero con etiqueta `Datos simulados` | Sí |
+| Ticket promedio | Calculado o `No disponible` | Sí |
+| Nivel de atención | `Alta`, `Media`, `Normal` con explicación textual | Sí |
 | Último éxito | Fecha local y antigüedad textual | Sí |
 | Estado | `Actualizado`, `Desactualizado` o `Sin datos` | Sí |
-| Acción | `Ver detalle` | No |
+| Acción | `Ver detalle` y `Ver reseñas` | No |
 
 `Desactualizado` significa que el último éxito supera 7 días; este valor es configuración de presentación, no una regla de calidad externa.
+
+### Matriz de categorías
+
+| Campo | Presentación |
+|---|---|
+| Categoría | Nombre del tema manual |
+| Reseñas | Cantidad de reseñas dentro de filtros |
+| Calificación promedio | Promedio de estrellas de esas reseñas |
+| Sucursales más afectadas | Hasta tres sucursales con mayor cantidad de reseñas negativas del tema |
+| Ventas | Suma simulada de sucursales relacionadas en el período |
+| Transacciones | Suma simulada de sucursales relacionadas en el período |
+| Ticket promedio | Calculado del mismo conjunto |
+
+La categoría no indica sentimiento por sí sola. La interpretación positiva, neutra o negativa viene de la calificación de la reseña.
+
+### Recomendaciones por reglas
+
+| Señal | Regla inicial | Texto esperado |
+|---|---|---|
+| Riesgo combinado | Calificación menor a 4.0 y ventas bajo promedio | Priorizar revisión gerencial de la sucursal. |
+| Buenas ventas con quejas | Ventas sobre promedio y varias reseñas negativas en una categoría | Proteger desempeño revisando el tema recurrente. |
+| Precio sensible | Ticket sobre promedio y reseñas negativas en `Precio` | Revisar percepción de valor, promociones o comunicación. |
+| Dato insuficiente | Sin métricas operativas o datos públicos desactualizados | Completar integración antes de concluir. |
+
+Las recomendaciones deben decir qué datos las dispararon y evitar frases causales como "las quejas redujeron las ventas".
 
 ### Estados
 
@@ -111,6 +153,7 @@ Comparar las cinco sucursales autorizadas en menos de un minuto.
 - **Vacío:** “No hay sucursales activas dentro de su alcance.”
 - **Datos parciales:** banner ámbar y valores faltantes individuales.
 - **Proveedor fallido:** mostrar último éxito y “El último intento falló”; no cubrir la pantalla con un error fatal.
+- **Sin datos operativos:** mostrar la comparación pública y explicar que se requiere importar el CSV demo para ventas, transacciones y ticket.
 
 ## 7. UX-03 — Detalle de sucursal
 
@@ -262,4 +305,3 @@ acceptance:
 - [Procesos y casos de uso](08-procesos-casos-uso.md)
 - [Modelo de dominio](10-modelo-dominio-diccionario.md)
 - [Diseño de seguridad y acceso](14-diseno-seguridad-acceso.md)
-

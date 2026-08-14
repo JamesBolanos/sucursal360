@@ -294,7 +294,55 @@ Salida esperada:
 
 - Demo local listo y presentable.
 
-### Iteracion 11 - Integracion live opcional
+### Iteracion 11 - Dashboard analitico gerencial
+
+Objetivo: convertir el panel en una vista de decision para gerencia, cruzando percepcion del cliente, categorias internas y metricas operativas simuladas.
+
+Tareas:
+
+- Replantear `/dashboard` como tablero gerencial con controles visibles.
+- Agregar filtros por periodo, sucursal, categoria, calificacion/sentimiento operativo y metrica.
+- Comparar sucursales en una tabla principal con:
+  - calificacion;
+  - cantidad de resenas;
+  - categoria negativa principal;
+  - ventas simuladas;
+  - transacciones simuladas;
+  - ticket promedio simulado;
+  - nivel de atencion recomendado.
+- Agregar matriz de categorias contra desempeno operativo:
+  - categoria;
+  - cantidad de resenas;
+  - calificacion promedio de resenas categorizadas;
+  - sucursales mas afectadas;
+  - ventas, transacciones y ticket promedio del periodo filtrado.
+- Agregar graficas con equivalente tabular:
+  - dispersion calificacion vs ventas, con tamano por cantidad de resenas;
+  - barras de categorias por impacto;
+  - tendencia simple de ventas/transacciones si existe historial.
+- Generar recomendaciones por reglas transparentes, no IA:
+  - baja calificacion y bajas ventas;
+  - buenas ventas con alto volumen de quejas;
+  - ticket alto con quejas de precio;
+  - datos faltantes o desactualizados.
+- Mantener etiquetas de fuente:
+  - resenas externas/demo;
+  - metricas `Datos simulados`;
+  - categorias `Clasificacion manual`.
+
+Evidencia:
+
+- El gerente corporativo puede comparar experiencia del cliente contra ventas, transacciones y ticket.
+- Los filtros cambian todas las secciones relevantes.
+- Cada grafica tiene tabla equivalente.
+- Valores faltantes se muestran como `No disponible`.
+- El panel puede explicarse en menos de dos minutos como vista ejecutiva.
+
+Salida esperada:
+
+- El demo muestra claramente la integracion entre sistemas y ayuda a tomar decisiones, no solo a ver tarjetas.
+
+### Iteracion 12 - Integracion live opcional
 
 Objetivo: agregar una prueba de integracion real sin poner en riesgo el demo base.
 
@@ -318,7 +366,7 @@ Salida esperada:
 
 - El demo tiene una historia de integracion real sin depender de ella para funcionar.
 
-### Iteracion 12 - Despliegue opcional
+### Iteracion 13 - Despliegue opcional
 
 Objetivo: publicar cuando el demo local ya sea estable.
 
@@ -340,16 +388,17 @@ Salida esperada:
 
 - Demo publicado.
 
-## 4. Primer corte recomendado
+## 4. Siguiente corte recomendado
 
-El siguiente trabajo recomendado es la Iteracion 0 completa:
+El siguiente trabajo recomendado es la Iteracion 11 completa:
 
-1. Agregar `global.json`.
-2. Crear README minimo.
-3. Confirmar si se inicializara Git.
-4. Ejecutar restore, build y test.
+1. Redisenar `/dashboard` como vista analitica gerencial.
+2. Cruzar resenas/categorias con ventas, transacciones y ticket.
+3. Agregar controles de filtro y comparacion.
+4. Mantener fuentes visibles y tablas equivalentes para graficas.
+5. Ejecutar build y pruebas.
 
-Despues de eso, comenzar la Iteracion 1 con el modelo de dominio y la migracion inicial.
+Despues de eso, evaluar si conviene avanzar a integracion live opcional o publicar primero el demo con datos controlados.
 
 ## 5. Criterios para no avanzar
 

@@ -19,6 +19,7 @@ flowchart LR
     Publica[Proveedor de datos públicos] --> Adaptador[Adaptador de integración]
     Adaptador --> App[Sucursal 360]
     CSV[Dataset POS/ERP simulado] --> App
+    App --> Categoria[Clasificación manual]
     App --> BD[(Base de datos)]
     BD --> Panel[Panel gerencial]
     BD --> Excel[Reporte Excel]
@@ -28,9 +29,9 @@ flowchart LR
 
 | Fuente | Tipo | Estado | Propósito |
 |---|---|---|---|
-| Proveedor de establecimientos y reseñas | Externa | Pendiente de selección | Datos públicos de sucursales |
+| Proveedor de establecimientos y reseñas | Externa o fixture demo | Demo activo; live opcional | Datos públicos/sociales de sucursales |
 | Archivo o datos semilla POS/ERP | Interna simulada | Confirmada para el demo | Mostrar ventas, transacciones y ticket promedio |
-| Base de datos de Sucursal 360 | Interna | Confirmada | Historial, categorías, usuarios y bitácora |
+| Base de datos de Sucursal 360 | Interna | Confirmada | Historial, categorías manuales, usuarios, reglas y bitácora |
 
 ## 4. Integración pública
 
@@ -142,8 +143,8 @@ Representar la forma que podría tener una integración interna futura. El demo 
 ### 5.2 Estructura propuesta
 
 ```csv
-business_date,branch_code,net_sales,transaction_count,average_ticket,currency,data_origin
-2026-07-01,SUC-001,42500.00,350,121.43,NIO,SIMULATED
+business_date,branch_code,net_sales,transaction_count,currency,data_origin
+2026-07-01,SUC-001,42500.00,350,NIO,SIMULATED
 ```
 
 ### 5.3 Validaciones
@@ -152,7 +153,7 @@ business_date,branch_code,net_sales,transaction_count,average_ticket,currency,da
 - Código de sucursal existente.
 - Moneda permitida.
 - Ventas y transacciones no negativas.
-- Ticket promedio consistente con la fórmula, dentro de una tolerancia definida.
+- Ticket promedio calculado por el sistema como ventas netas divididas entre transacciones.
 - Combinación fecha-sucursal única.
 - `data_origin` debe ser `SIMULATED` en esta versión.
 
@@ -208,16 +209,34 @@ La categorización será manual. No se interpretará automáticamente el sentimi
 | KPI-08 | Ventas netas | Suma de ventas netas simuladas | Simulada | Etiquetar siempre |
 | KPI-09 | Transacciones | Suma de transacciones simuladas | Simulada | Etiquetar siempre |
 | KPI-10 | Ticket promedio | Ventas netas simuladas / transacciones simuladas | Simulada/calculada | Sin valor si transacciones = 0 |
+| KPI-11 | Calificación promedio por categoría | Promedio de calificación de reseñas asignadas a una categoría | Pública almacenada + interna | La categoría es tema, no sentimiento |
+| KPI-12 | Reseñas negativas por categoría | Cantidad de reseñas categorizadas con calificación baja | Pública almacenada + interna | Umbral inicial: 1 o 2 estrellas |
+| KPI-13 | Riesgo gerencial de sucursal | Regla interna basada en calificación, reseñas negativas, datos desactualizados y métricas simuladas | Calculada | Señal de priorización, no diagnóstico automático |
+| KPI-14 | Ventas por categoría observada | Ventas simuladas de sucursales que tienen reseñas en una categoría dentro del período | Simulada + interna | No implica causalidad |
+| KPI-15 | Transacciones por categoría observada | Transacciones simuladas de sucursales que tienen reseñas en una categoría dentro del período | Simulada + interna | No implica causalidad |
+| KPI-16 | Ticket promedio por categoría observada | Ventas / transacciones de sucursales afectadas por una categoría | Simulada + interna | Sin valor si transacciones = 0 |
 
 ## 9. Reportes y vistas
 
-### 9.1 Panel corporativo
+### 9.1 Panel gerencial analitico
 
-- Tarjeta por sucursal.
-- Calificación, reseñas, variación y última actualización.
-- Indicador de dato actualizado o desactualizado.
-- Orden por calificación, variación o cantidad de reseñas.
-- Indicadores operativos simulados en una sección diferenciada.
+El panel corporativo sera la vista analitica principal del demo. Debe responder:
+
+- que sucursales requieren atencion;
+- que temas aparecen en las resenas;
+- si la senal de cliente coincide con ventas, transacciones o ticket;
+- que datos provienen de fuentes externas/demo, archivos simulados o clasificacion interna.
+
+Contenido esperado:
+
+- Controles de periodo, sucursal, categoria, calificacion y metrica operativa.
+- Resumen ejecutivo con señales accionables.
+- Tabla principal de comparacion por sucursal.
+- Matriz de categorias contra ventas, transacciones y ticket.
+- Graficas con equivalente tabular.
+- Recomendaciones por reglas transparentes.
+
+La vista no afirmara causalidad. Debe usar lenguaje como "senal", "observacion" o "prioridad sugerida".
 
 ### 9.2 Detalle de sucursal
 
@@ -267,4 +286,3 @@ La integración solo se considerará viable después de ejecutar un spike que do
 - costo estimado para el volumen del demo;
 - respuesta ante errores y límites;
 - alternativa de mock controlado para desarrollo y pruebas automatizadas.
-

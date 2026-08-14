@@ -2,7 +2,7 @@
 
 ## Guion demo 5-7 minutos
 
-Objetivo: demostrar una app gerencial que integra datos publicos demo, datos operativos simulados y reportes ejecutivos para una cadena ficticia de cafeterias.
+Objetivo: demostrar una app gerencial que integra datos publicos/demo, resenas sociales, datos operativos simulados, categorizacion interna y reportes ejecutivos para una cadena ficticia de cafeterias.
 
 ## Preparacion
 
@@ -21,7 +21,7 @@ Tiempo: 30 segundos.
 
 Mensaje:
 
-Sucursal 360 consolida informacion publica de reputacion, resenas y datos operativos simulados para comparar sucursales de Cafe Horizonte. El demo usa datos ficticios y controlados para que funcione sin depender de nube ni APIs externas.
+Sucursal 360 consolida informacion publica de reputacion, resenas, datos operativos simulados y categorizacion interna para comparar sucursales de Cafe Horizonte. El demo usa datos ficticios y controlados para que funcione sin depender de nube ni APIs externas.
 
 Pantalla:
 
@@ -41,18 +41,20 @@ Mensaje:
 
 Este paso simula consumir un proveedor externo. La app normaliza los datos, guarda snapshots, reseñas y bitacora de ejecucion. Si hay error, conserva datos previos y registra correlacion.
 
-### 3. Panel corporativo
+### 3. Panel gerencial analitico
 
-Tiempo: 60-90 segundos.
+Tiempo: 90-120 segundos.
 
 Accion:
 
 1. Abrir `Panel`.
-2. Mostrar resumen, lectura rapida, ranking y tabla comparativa.
+2. Mostrar controles de periodo, sucursal, categoria, calificacion y metrica.
+3. Comparar sucursales por reputacion, categoria principal, ventas, transacciones y ticket.
+4. Mostrar recomendaciones y explicar que son reglas transparentes.
 
 Mensaje:
 
-El gerente puede ver que sucursales tienen mejor reputacion, cuales necesitan atencion y cuales no tienen datos actualizados. La app no inventa valores: cuando falta informacion muestra `No disponible`.
+Este es el centro de decision. El gerente puede comparar percepcion del cliente contra metricas operativas simuladas. Las categorias vienen del analisis interno; las estrellas indican si el tema es positivo o negativo. La app no afirma causalidad ni inventa valores: cuando falta informacion muestra `No disponible`.
 
 ### 4. Detalle de sucursal
 
@@ -96,7 +98,7 @@ Accion:
 
 Mensaje:
 
-Este paso representa una futura integracion POS/ERP sin conectarse a un sistema real. El importador valida todo el archivo antes de guardar; si una fila falla, no persiste nada parcial.
+Este paso representa una futura integracion POS/ERP sin conectarse a un sistema real. El importador valida todo el archivo antes de guardar; si una fila falla, no persiste nada parcial. Al volver al panel, esas metricas permiten comparar ventas, transacciones y ticket contra la senal de cliente.
 
 ### 7. Reporte Excel
 
@@ -116,7 +118,7 @@ El cierre del demo es un entregable gerencial: resumen, sucursales, tendencias, 
 
 Mensaje:
 
-El valor del demo no esta en un algoritmo complejo, sino en integrar datos, conservar historia, separar fuentes, permitir analisis manual y generar una salida ejecutiva reutilizable. La siguiente fase podria ser una API live opcional o despliegue publico.
+El valor del demo no esta en un algoritmo complejo, sino en integrar datos de varias fuentes, conservar historia, separar origenes, permitir analisis manual y convertir todo eso en una vista gerencial accionable. La siguiente fase podria ser una API live opcional o despliegue publico.
 
 ## Preguntas esperadas
 

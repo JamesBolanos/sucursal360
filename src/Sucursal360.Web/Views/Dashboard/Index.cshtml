@@ -1,220 +1,176 @@
+@using System.Globalization
 @model Sucursal360.Web.ViewModels.Dashboard.CorporateDashboardViewModel
 
 @{
-    ViewData["Title"] = "Panel corporativo";
+    ViewData["Title"] = "Panel gerencial";
 }
 
-<section class="page-header">
-    <div>
-        <p class="eyebrow">Sucursal 360</p>
-        <h1>Panel corporativo</h1>
-    </div>
-    <a class="btn btn-outline-primary" asp-controller="AdminIntegrations" asp-action="Index">Integraciones</a>
-</section>
-
-<section class="metric-grid mb-3" aria-label="Resumen corporativo">
-    <article class="metric-tile">
-        <span>Sucursales activas</span>
-        <strong>@Model.Summary.ActiveBranches / @Model.Summary.TotalBranches</strong>
-    </article>
-    <article class="metric-tile">
-        <span>Con datos publicos</span>
-        <strong>@Model.Summary.BranchesWithSnapshots</strong>
-    </article>
-    <article class="metric-tile">
-        <span>Rating promedio</span>
-        <strong>@FormatDecimal(Model.Summary.AverageRating)</strong>
-    </article>
-    <article class="metric-tile">
-        <span>Total de resenas</span>
-        <strong>@FormatNumber(Model.Summary.TotalReviewCount)</strong>
-    </article>
-</section>
-
-<section class="dashboard-focus mb-3">
-    <div class="surface">
-        <div class="surface-header">
-            <div>
-                <h2>Lectura rapida</h2>
-                <p>Senales principales despues de la ultima sincronizacion.</p>
-            </div>
+<section class="dashboard-page">
+    <header class="dashboard-topbar">
+        <div>
+            <p class="eyebrow">Sucursal 360</p>
+            <h1>Panel gerencial</h1>
         </div>
 
-        <div class="insight-grid">
+        <form method="get" class="manager-filter-form" id="dashboardFilters">
+            <div>
+                <label asp-for="Filters.Month" class="form-label">Mes</label>
+                <select asp-for="Filters.Month" name="Month" class="form-select" onchange="this.form.submit()">
+                    @if (Model.MonthOptions.Count == 0)
+                    {
+                        <option value="">Sin datos</option>
+                    }
+                    @foreach (var month in Model.MonthOptions)
+                    {
+                        <option value="@month">@FormatMonth(month)</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label asp-for="Filters.BranchId" class="form-label">Sucursal</label>
+                <select asp-for="Filters.BranchId" name="BranchId" class="form-select" onchange="this.form.submit()">
+                    <option value="">Todas</option>
+                    @foreach (var branch in Model.BranchOptions)
+                    {
+                        <option value="@branch.Id">@branch.Code - @branch.Name</option>
+                    }
+                </select>
+            </div>
+        </form>
+    </header>
+
+    <section class="manager-dashboard-grid">
+        <article class="executive-card executive-@Model.ExecutiveSummary.RiskTone">
+            <div class="executive-copy">
+                <span>@Model.ExecutiveSummary.ScopeLabel</span>
+                <h2>@Model.ExecutiveSummary.Headline</h2>
+                <p>@Model.ExecutiveSummary.Detail</p>
+            </div>
+            <div class="health-thermometer" aria-label="Salud @Model.ExecutiveSummary.HealthPercent por ciento">
+                <div>
+                    <span style="height: @Model.ExecutiveSummary.HealthPercent%;"></span>
+                </div>
+                <strong>@Model.ExecutiveSummary.RiskLabel</strong>
+            </div>
+        </article>
+
+        <article class="dashboard-kpi-row" aria-label="Resumen ejecutivo">
             @foreach (var insight in Model.Insights)
             {
-                <article class="insight-item insight-@insight.Tone">
+                <div class="dashboard-kpi insight-@insight.Tone">
                     <span>@insight.Label</span>
                     <strong>@insight.Value</strong>
                     <small>@insight.Detail</small>
-                </article>
+                </div>
             }
-        </div>
-    </div>
+        </article>
 
-    <div class="surface">
-        <div class="surface-header">
-            <div>
-                <h2>Ranking de sucursales</h2>
-                <p>Rating publico actual y volumen de resenas.</p>
+        <article class="chart-card sales-card">
+            <div class="chart-card-header">
+                <div>
+                    <h2>Ventas</h2>
+                    <p>Total: @FormatCurrency(Model.OperationalSummary.NetSales, Model.OperationalSummary.Currency)</p>
+                </div>
+                <span class="status-pill status-pill-muted">Datos simulados</span>
             </div>
-        </div>
 
-        <div class="ranking-list">
-            @foreach (var item in Model.Ranking)
+            @if (Model.SalesSlices.Count == 0)
             {
-                <a class="ranking-item" asp-controller="Branches" asp-action="Details" asp-route-id="@item.BranchId">
-                    <span class="ranking-position">@item.Rank</span>
-                    <span class="ranking-main">
-                        <span class="ranking-title">@item.Code - @item.Name</span>
-                        <span class="rating-bar" aria-hidden="true">
-                            <span style="width: @item.RatingPercent%;"></span>
-                        </span>
-                    </span>
-                    <span class="ranking-metrics">
-                        <strong>@FormatDecimal(item.Rating)</strong>
-                        <small>@FormatNumber(item.ReviewCount) resenas</small>
-                    </span>
-                </a>
+                <div class="empty-state compact-empty">
+                    <strong>No disponible</strong>
+                    <p>Importe el CSV demo para mostrar ventas.</p>
+                </div>
             }
-        </div>
-    </div>
-</section>
-
-<section class="surface mb-3">
-    <div class="surface-header">
-        <div>
-            <h2>Comparativo de reputacion publica</h2>
-            <p>Fuente: proveedor demo local. Ultima sincronizacion: @FormatDate(Model.Summary.LastSynchronizationAtUtc).</p>
-        </div>
-        <span class="status-pill status-pill-info">Integracion demo</span>
-    </div>
-
-    <div class="table-responsive">
-        <table class="table align-middle dashboard-table">
-            <thead>
-                <tr>
-                    <th>Codigo</th>
-                    <th>Sucursal</th>
-                    <th>Estado</th>
-                    <th>Rating</th>
-                    <th>Var.</th>
-                    <th>Resenas</th>
-                    <th>Var.</th>
-                    <th>Actualizado</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var branch in Model.Branches)
-                {
-                    <tr>
-                        <td class="fw-semibold">@branch.Code</td>
-                        <td>
-                            <div class="branch-cell">
-                                <span>@branch.Name</span>
-                                <small>@branch.Provider - @branch.ExternalPlaceId</small>
+            else
+            {
+                <div class="sales-visual">
+                    <div class="pie-chart" style="background: @BuildPieGradient(Model.SalesSlices);" role="img" aria-label="Distribucion de ventas"></div>
+                    <div class="pie-legend">
+                        @foreach (var slice in Model.SalesSlices)
+                        {
+                            <div>
+                                <span style="background: @slice.Color;"></span>
+                                <strong>@slice.Label</strong>
+                                <small>@slice.Percent.ToString("0.#")% - @FormatCurrency(slice.Value, Model.OperationalSummary.Currency)</small>
                             </div>
-                        </td>
-                        <td>
-                            <span class="status-pill @DataStatusClass(branch.DataStatus)">@branch.DataStatus</span>
-                            <span class="d-block mt-1 text-muted small">@branch.BusinessStatus</span>
-                        </td>
-                        <td class="metric-value">@FormatDecimal(branch.Rating)</td>
-                        <td>@FormatDelta(branch.RatingDelta, "0.00")</td>
-                        <td class="metric-value">@FormatNumber(branch.ReviewCount)</td>
-                        <td>@FormatDelta(branch.ReviewCountDelta, "0")</td>
-                        <td>@FormatDate(branch.RetrievedAtUtc)</td>
-                        <td class="text-end">
-                            <a class="btn btn-sm btn-outline-primary" asp-controller="Branches" asp-action="Details" asp-route-id="@branch.BranchId">Ver</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</section>
+                        }
+                    </div>
+                </div>
+            }
+        </article>
 
-<section class="surface">
-    <div class="surface-header">
-        <div>
-            <h2>Resumen operativo</h2>
-            <p>Datos simulados separados de la reputacion publica.</p>
-        </div>
-        <span class="status-pill status-pill-muted">@Model.OperationalSummary.SourceLabel</span>
-    </div>
+        <article class="chart-card ticket-card">
+            <div class="chart-card-header">
+                <div>
+                    <h2>Ticket promedio</h2>
+                    <p>@FormatCurrency(Model.OperationalSummary.AverageTicket, Model.OperationalSummary.Currency)</p>
+                </div>
+                <span class="status-pill status-pill-muted">Datos simulados</span>
+            </div>
 
-    @if (!Model.OperationalSummary.HasData)
-    {
-        <div class="empty-state">
-            <strong>No disponible</strong>
-            <p>Importe el CSV demo desde Datos simulados para mostrar ventas, transacciones y ticket promedio.</p>
-        </div>
-    }
-    else
-    {
-        <dl class="detail-list">
-            <div>
-                <dt>Ventas netas</dt>
-                <dd>@Model.OperationalSummary.Currency @FormatDecimal(Model.OperationalSummary.NetSales)</dd>
-            </div>
-            <div>
-                <dt>Transacciones</dt>
-                <dd>@FormatNumber(Model.OperationalSummary.TransactionCount)</dd>
-            </div>
-            <div>
-                <dt>Ticket promedio</dt>
-                <dd>@Model.OperationalSummary.Currency @FormatDecimal(Model.OperationalSummary.AverageTicket)</dd>
-            </div>
-        </dl>
-    }
+            @if (Model.TicketBars.Count == 0)
+            {
+                <div class="empty-state compact-empty">
+                    <strong>No disponible</strong>
+                    <p>Importe el CSV demo para mostrar ticket promedio.</p>
+                </div>
+            }
+            else
+            {
+                <div class="ticket-bars" role="img" aria-label="Comparacion de ticket promedio">
+                    @foreach (var bar in Model.TicketBars)
+                    {
+                        <div class="ticket-bar-row">
+                            <span>@bar.Label</span>
+                            <div>
+                                <i style="width: @bar.Percent%; background: @bar.Color;"></i>
+                            </div>
+                            <strong>@FormatCurrency(bar.AverageTicket, Model.OperationalSummary.Currency)</strong>
+                        </div>
+                    }
+                </div>
+            }
+        </article>
+    </section>
 </section>
 
 @functions {
-    private static string FormatDecimal(decimal? value)
+    private static string FormatCurrency(decimal? value, string currency)
     {
-        return value is null ? "No disponible" : value.Value.ToString("0.00");
+        return value is null ? "No disponible" : $"{currency} {value.Value:N2}";
     }
 
-    private static string FormatNumber(int? value)
+    private static string FormatCurrency(decimal value, string currency)
     {
-        return value is null ? "No disponible" : value.Value.ToString("N0");
+        return $"{currency} {value:N2}";
     }
 
-    private static string FormatDate(DateTimeOffset? value)
+    private static string FormatMonth(string month)
     {
-        return value is null ? "No disponible" : value.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
-    }
-
-    private static string FormatDelta(decimal? value, string format)
-    {
-        if (value is null)
+        if (DateOnly.TryParseExact($"{month}-01", "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
         {
-            return "No disponible";
+            return date.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("es-NI"));
         }
 
-        var prefix = value > 0 ? "+" : string.Empty;
-        return $"{prefix}{value.Value.ToString(format)}";
+        return month;
     }
 
-    private static string FormatDelta(int? value, string format)
+    private static string BuildPieGradient(IReadOnlyList<Sucursal360.Web.ViewModels.Dashboard.SalesSliceViewModel> slices)
     {
-        if (value is null)
+        var current = 0m;
+        var parts = new List<string>();
+        foreach (var slice in slices)
         {
-            return "No disponible";
+            var next = current + slice.Percent;
+            parts.Add($"{slice.Color} {FormatPercent(current)}% {FormatPercent(next)}%");
+            current = next;
         }
 
-        var prefix = value > 0 ? "+" : string.Empty;
-        return $"{prefix}{value.Value.ToString(format)}";
+        return $"conic-gradient({string.Join(", ", parts)})";
     }
 
-    private static string DataStatusClass(string status)
+    private static string FormatPercent(decimal value)
     {
-        return status switch
-        {
-            "Actualizado" => "status-pill-success",
-            "Sin sincronizar" => "status-pill-warning",
-            _ => "status-pill-muted"
-        };
+        return value.ToString("0.###", CultureInfo.InvariantCulture);
     }
 }
