@@ -94,7 +94,7 @@ El publish profile se descarga desde el App Service en Azure Portal usando `Get 
 
 Con los settings configurados:
 
-1. Hacer push a `main`, o ejecutar manualmente el workflow `Deploy Azure App Service`.
+1. Ejecutar manualmente el workflow `Deploy Azure App Service`.
 2. Esperar que GitHub Actions ejecute restore, build, test, publish y deploy.
 3. Abrir la URL del App Service.
 4. Iniciar sesion con:
