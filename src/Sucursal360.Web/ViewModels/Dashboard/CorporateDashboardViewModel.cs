@@ -4,7 +4,6 @@ public sealed record CorporateDashboardViewModel(
     DashboardFiltersViewModel Filters,
     IReadOnlyList<DashboardBranchOptionViewModel> BranchOptions,
     IReadOnlyList<string> MonthOptions,
-    ExecutiveSummaryViewModel ExecutiveSummary,
     DashboardSummaryViewModel Summary,
     IReadOnlyList<DashboardInsightViewModel> Insights,
     IReadOnlyList<BranchRankingItemViewModel> Ranking,
@@ -12,6 +11,8 @@ public sealed record CorporateDashboardViewModel(
     OperationalSummaryViewModel OperationalSummary,
     IReadOnlyList<SalesSliceViewModel> SalesSlices,
     IReadOnlyList<TicketBarViewModel> TicketBars,
+    ReviewCoverageViewModel ReviewCoverage,
+    IReadOnlyList<ReviewRatingSliceViewModel> ReviewRatingSlices,
     IReadOnlyList<CategoryImpactViewModel> CategoryImpact,
     IReadOnlyList<ExperienceOperationPointViewModel> ExperienceOperationPoints,
     IReadOnlyList<DashboardRecommendationViewModel> Recommendations);

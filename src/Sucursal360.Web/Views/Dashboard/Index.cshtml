@@ -40,21 +40,7 @@
     </header>
 
     <section class="manager-dashboard-grid">
-        <article class="executive-card executive-@Model.ExecutiveSummary.RiskTone">
-            <div class="executive-copy">
-                <span>@Model.ExecutiveSummary.ScopeLabel</span>
-                <h2>@Model.ExecutiveSummary.Headline</h2>
-                <p>@Model.ExecutiveSummary.Detail</p>
-            </div>
-            <div class="health-thermometer" aria-label="Salud @Model.ExecutiveSummary.HealthPercent por ciento">
-                <div>
-                    <span style="height: @Model.ExecutiveSummary.HealthPercent%;"></span>
-                </div>
-                <strong>@Model.ExecutiveSummary.RiskLabel</strong>
-            </div>
-        </article>
-
-        <article class="dashboard-kpi-row" aria-label="Resumen ejecutivo">
+        <article class="dashboard-kpi-row" aria-label="Resumen operativo">
             @foreach (var insight in Model.Insights)
             {
                 <div class="dashboard-kpi insight-@insight.Tone">
@@ -131,6 +117,109 @@
                 </div>
             }
         </article>
+
+        <article class="chart-card review-rating-card">
+            <div class="chart-card-header">
+                <div>
+                    <h2>Ratings de resenas</h2>
+                    <p>@FormatCount(Model.ReviewCoverage.TotalCount) resenas del periodo</p>
+                </div>
+                <span class="status-pill status-pill-muted">Voz del cliente</span>
+            </div>
+
+            @if (Model.ReviewRatingSlices.Count == 0)
+            {
+                <div class="empty-state compact-empty">
+                    <strong>No disponible</strong>
+                    <p>No hay ratings de resenas para los filtros actuales.</p>
+                </div>
+            }
+            else
+            {
+                <div class="review-rating-visual">
+                    <div class="pie-chart pie-chart-compact" style="background: @BuildReviewPieGradient(Model.ReviewRatingSlices);" role="img" aria-label="Distribucion de rating de resenas"></div>
+                    <div class="pie-legend">
+                        @foreach (var slice in Model.ReviewRatingSlices)
+                        {
+                            <div>
+                                <span style="background: @slice.Color;"></span>
+                                <strong>@slice.Label</strong>
+                                <small>@slice.Percent.ToString("0.#")% - @slice.Count resenas</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="coverage-summary">
+                    <div>
+                        <strong>@Model.ReviewCoverage.CategorizedPercent%</strong>
+                        <span>clasificadas por sucursal</span>
+                    </div>
+                    <div class="coverage-bar" aria-label="@Model.ReviewCoverage.CategorizedPercent por ciento clasificadas">
+                        <span style="width: @Model.ReviewCoverage.CategorizedPercent%;"></span>
+                    </div>
+                    <small>@FormatCount(Model.ReviewCoverage.CategorizedCount) categorizadas; @FormatCount(Model.ReviewCoverage.UncategorizedCount) pendientes.</small>
+                </div>
+            }
+        </article>
+
+        <article class="chart-card category-card">
+            <div class="chart-card-header">
+                <div>
+                    <h2>Categorias</h2>
+                    <p>Menciones por tema. Una resena puede aparecer en varias categorias.</p>
+                </div>
+                <span class="status-pill status-pill-info">Clasificacion manual</span>
+            </div>
+
+            @if (Model.CategoryImpact.Count == 0)
+            {
+                <div class="empty-state compact-empty">
+                    <strong>No disponible</strong>
+                    <p>Clasifique resenas para mostrar categorias comparables.</p>
+                </div>
+            }
+            else
+            {
+                <div class="category-impact-list">
+                    @foreach (var category in Model.CategoryImpact.Take(5))
+                    {
+                        <div class="category-impact-item">
+                            <div>
+                                <strong>@category.CategoryName</strong>
+                                @if (category.AverageRating is null)
+                                {
+                                    <span>No disponible</span>
+                                }
+                                else
+                                {
+                                    <span class="category-rating" aria-label="@FormatRatingLabel(category.AverageRating)">
+                                        <span class="star-rating category-star-rating" aria-hidden="true">
+                                            @for (var star = 1; star <= 5; star++)
+                                            {
+                                                <span class="star-meter">
+                                                    <span class="star-meter-base">&#9733;</span>
+                                                    <span class="star-meter-fill" style="width: @StarFillPercent(category.AverageRating, star)%;">&#9733;</span>
+                                                </span>
+                                            }
+                                        </span>
+                                    </span>
+                                }
+                            </div>
+                            <div class="impact-bar @RatingBarClass(category.AverageRating)">
+                                <span style="width: @category.RatingPercent%;"></span>
+                            </div>
+                            <dl>
+                                <div>
+                                    <dt>Menciones</dt>
+                                    <dd>@category.MentionCount</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    }
+                </div>
+            }
+        </article>
     </section>
 </section>
 
@@ -145,6 +234,43 @@
         return $"{currency} {value:N2}";
     }
 
+    private static string FormatRating(decimal? value)
+    {
+        return value is null ? "No disponible" : $"{value.Value:0.00}";
+    }
+
+    private static string FormatRatingLabel(decimal? value)
+    {
+        return value is null ? "Rating no disponible" : $"Rating promedio {FormatRating(value)} de 5 estrellas";
+    }
+
+    private static int StarFillPercent(decimal? value, int star)
+    {
+        if (value is null)
+        {
+            return 0;
+        }
+
+        var fill = Math.Clamp(value.Value - (star - 1), 0m, 1m);
+        return (int)Math.Round(fill * 100m);
+    }
+
+    private static string RatingBarClass(decimal? value)
+    {
+        return value switch
+        {
+            null => "impact-bar-muted",
+            <= 2m => "impact-bar-danger",
+            <= 3m => "impact-bar-warning",
+            _ => "impact-bar-success"
+        };
+    }
+
+    private static string FormatCount(int value)
+    {
+        return value.ToString("N0", CultureInfo.GetCultureInfo("es-NI"));
+    }
+
     private static string FormatMonth(string month)
     {
         if (DateOnly.TryParseExact($"{month}-01", "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
@@ -156,6 +282,20 @@
     }
 
     private static string BuildPieGradient(IReadOnlyList<Sucursal360.Web.ViewModels.Dashboard.SalesSliceViewModel> slices)
+    {
+        var current = 0m;
+        var parts = new List<string>();
+        foreach (var slice in slices)
+        {
+            var next = current + slice.Percent;
+            parts.Add($"{slice.Color} {FormatPercent(current)}% {FormatPercent(next)}%");
+            current = next;
+        }
+
+        return $"conic-gradient({string.Join(", ", parts)})";
+    }
+
+    private static string BuildReviewPieGradient(IReadOnlyList<Sucursal360.Web.ViewModels.Dashboard.ReviewRatingSliceViewModel> slices)
     {
         var current = 0m;
         var parts = new List<string>();

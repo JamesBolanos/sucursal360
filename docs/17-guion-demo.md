@@ -48,13 +48,14 @@ Tiempo: 90-120 segundos.
 Accion:
 
 1. Abrir `Panel`.
-2. Mostrar controles de periodo, sucursal, categoria, calificacion y metrica.
-3. Comparar sucursales por reputacion, categoria principal, ventas, transacciones y ticket.
-4. Mostrar recomendaciones y explicar que son reglas transparentes.
+2. Mostrar controles de mes y sucursal.
+3. Comparar ventas por sucursal y ticket promedio.
+4. Mostrar `Voz del cliente`: distribucion de estrellas, cobertura de clasificacion y categorias con rating promedio.
+5. Cambiar sucursal para evidenciar que las visuales responden sin boton Aplicar.
 
 Mensaje:
 
-Este es el centro de decision. El gerente puede comparar percepcion del cliente contra metricas operativas simuladas. Las categorias vienen del analisis interno; las estrellas indican si el tema es positivo o negativo. La app no afirma causalidad ni inventa valores: cuando falta informacion muestra `No disponible`.
+Este es el centro de decision. El gerente ve ventas y ticket como senales operativas, y la voz del cliente como senales agregadas. Las categorias vienen del analisis interno de sucursal; las estrellas indican si el tema es positivo o negativo. La app no afirma causalidad ni inventa valores: cuando falta informacion muestra `No disponible`.
 
 ### 4. Detalle de sucursal
 
@@ -82,7 +83,7 @@ Accion:
 
 Mensaje:
 
-Las categorias son temas gerenciales: servicio, precio, calidad, limpieza. La calificacion en estrellas da la senal positiva o negativa. Por ejemplo, `Servicio` con 2 estrellas indica problema de servicio; `Servicio` con 5 estrellas indica fortaleza de servicio. Los cambios son manuales y auditados.
+Esta pantalla es la bandeja de trabajo de sucursal. Las categorias son temas gerenciales: servicio, precio, calidad, limpieza. La calificacion en estrellas da la senal positiva o negativa. Por ejemplo, `Servicio` con 2 estrellas indica problema de servicio; `Servicio` con 5 estrellas indica fortaleza de servicio. Los cambios son manuales y auditados, y luego alimentan el panel gerencial.
 
 ### 6. Datos simulados POS/ERP
 

@@ -9,6 +9,7 @@ obj/
 .vs/
 .vscode/
 .idea/
+.playwright-mcp/
 
 .DS_Store
 

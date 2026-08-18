@@ -1,0 +1,50 @@
+@page
+@model Sucursal360.Web.Areas.Identity.Pages.Account.LoginModel
+
+@{
+    ViewData["Title"] = "Iniciar sesion";
+}
+
+<section class="login-shell">
+    <div class="login-panel">
+        <div class="login-brand">
+            <span class="status-pill status-pill-info">DEMO</span>
+            <p class="eyebrow">Sucursal 360</p>
+            <h1>Acceso gerencial</h1>
+            <p>Demostracion independiente con datos ficticios para Cafe Horizonte.</p>
+        </div>
+
+        <form method="post" class="login-form">
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
+
+            <div>
+                <label asp-for="Input.Email" class="form-label"></label>
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" autofocus />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div>
+                <label asp-for="Input.Password" class="form-label"></label>
+                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-check">
+                <input asp-for="Input.RememberMe" class="form-check-input" />
+                <label asp-for="Input.RememberMe" class="form-check-label"></label>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Iniciar sesion</button>
+        </form>
+
+        <div class="login-note">
+            <strong>Acceso controlado</strong>
+            <p>Las cuentas del demo son creadas por el administrador. No hay autorregistro, recuperacion por correo ni proveedores sociales en esta version.</p>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -85,24 +85,19 @@ Comparar las sucursales autorizadas en menos de dos minutos, cruzando percepcion
 
 | Orden | Región | Contenido |
 |---:|---|---|
-| 1 | Barra de controles | Periodo, sucursal, categoría, calificación, métrica operativa, orden; botones Aplicar y Limpiar. |
-| 2 | Resumen ejecutivo | Señales accionables: sucursales en riesgo, mejor oportunidad, categoría negativa principal, datos faltantes. |
-| 3 | Comparación por sucursal | Tabla principal con datos de reseñas, categorías y operación simulada. |
-| 4 | Visualización experiencia-operación | Gráfica de calificación contra ventas y tabla equivalente. |
-| 5 | Matriz por categoría | Categorías manuales contra calificación, ventas, transacciones y ticket. |
-| 6 | Recomendaciones | Reglas transparentes, fuente de cada señal y acción sugerida. |
-| 7 | Acciones | Ver detalle; Ver reseñas filtradas; Exportar reporte. Sin botón de sincronización para gerentes. |
+| 1 | Barra de controles | Mes y sucursal; los controles actualizan el panel sin boton Aplicar. |
+| 2 | Indicadores compactos | Ventas, transacciones y ticket promedio. |
+| 3 | Visuales operativas | Pie chart de ventas y barras de ticket promedio. |
+| 4 | Voz del cliente | Distribucion de ratings, cobertura de clasificacion y categorias con rating promedio. |
 
 ### Controles
 
 | Control | Tipo | Regla |
 |---|---|---|
-| Periodo | Selector rápido + fechas | Últimos 30 días por defecto; fechas personalizadas válidas. |
+| Mes | Lista | Mes mas reciente con datos por defecto. |
 | Sucursal | Lista | `Todas` por defecto; respeta autorización. |
-| Categoría | Lista | `Todas` por defecto; incluye `Sin categoría` si aplica. |
-| Calificación | Segmentado | Todas, 1-2, 3, 4-5. |
-| Métrica | Segmentado | Ventas, transacciones, ticket promedio. |
-| Orden | Lista | Riesgo, ventas, calificación, reseñas, ticket. |
+
+`Transacciones` representa cantidad de compras registradas. `Ticket promedio` representa ventas netas divididas entre transacciones.
 
 ### Columnas de comparación
 
@@ -127,14 +122,11 @@ Comparar las sucursales autorizadas en menos de dos minutos, cruzando percepcion
 | Campo | Presentación |
 |---|---|
 | Categoría | Nombre del tema manual |
-| Reseñas | Cantidad de reseñas dentro de filtros |
-| Calificación promedio | Promedio de estrellas de esas reseñas |
-| Sucursales más afectadas | Hasta tres sucursales con mayor cantidad de reseñas negativas del tema |
-| Ventas | Suma simulada de sucursales relacionadas en el período |
-| Transacciones | Suma simulada de sucursales relacionadas en el período |
-| Ticket promedio | Calculado del mismo conjunto |
+| Menciones | Cantidad de asignaciones del tema dentro de filtros; no suma contra el total de reseñas porque una reseña puede tener varias categorías |
+| Calificación promedio | Promedio de estrellas de esas reseñas; define el largo y color de la barra |
 
 La categoría no indica sentimiento por sí sola. La interpretación positiva, neutra o negativa viene de la calificación de la reseña.
+Los conteos por categoría son menciones no exclusivas.
 
 ### Recomendaciones por reglas
 

@@ -11,6 +11,8 @@ namespace Sucursal360.Web.Controllers;
 [Authorize(Policy = AppPolicies.CanViewCorporateDashboard)]
 public class DashboardController(ApplicationDbContext dbContext) : Controller
 {
+    private const int LowRatingMaximum = 2;
+
     private static readonly string[] ChartColors =
     [
         "#1f6f4a",
@@ -53,7 +55,16 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
             .Select(review => new ReviewProjection(
                 review.BranchId,
                 review.Rating,
-                review.PublishedAtUtc))
+                review.PublishedAtUtc,
+                review.CategoryAssignments
+                    .Select(assignment => assignment.ReviewCategoryId)
+                    .ToList()))
+            .ToListAsync(cancellationToken);
+
+        var categories = await dbContext.ReviewCategories
+            .Where(category => category.IsActive)
+            .OrderBy(category => category.Name)
+            .Select(category => new CategoryProjection(category.Id, category.Name))
             .ToListAsync(cancellationToken);
 
         var operationalMetrics = await dbContext.SimulatedOperationalMetrics
@@ -82,7 +93,8 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
                 branch,
                 snapshots.Where(snapshot => snapshot.BranchId == branch.Id),
                 filteredReviews.Where(review => review.BranchId == branch.Id),
-                filteredOperationalMetrics.Where(metric => metric.BranchId == branch.Id)))
+                filteredOperationalMetrics.Where(metric => metric.BranchId == branch.Id),
+                LowRatingMaximum))
             .ToList();
 
         rows = ApplyAttentionLevels(rows)
@@ -96,7 +108,6 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
             normalizedFilters,
             branches.Select(branch => new DashboardBranchOptionViewModel(branch.Id, branch.Code, branch.Name)).ToList(),
             monthOptions,
-            BuildExecutiveSummary(rows, operationalSummary, normalizedFilters.BranchId),
             BuildSummary(rows),
             BuildInsights(rows, operationalSummary),
             BuildRanking(rows),
@@ -104,7 +115,9 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
             operationalSummary,
             BuildSalesSlices(rows, filteredOperationalMetrics, normalizedFilters.BranchId),
             BuildTicketBars(rows, filteredOperationalMetrics, normalizedFilters.BranchId),
-            [],
+            BuildReviewCoverage(filteredReviews),
+            BuildReviewRatingSlices(filteredReviews),
+            BuildCategoryImpact(categories, filteredReviews),
             [],
             []));
     }
@@ -209,7 +222,8 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
         BranchProjection branch,
         IEnumerable<SnapshotProjection> branchSnapshots,
         IEnumerable<ReviewProjection> branchReviews,
-        IEnumerable<OperationalMetricProjection> branchMetrics)
+        IEnumerable<OperationalMetricProjection> branchMetrics,
+        int lowRatingMaximum)
     {
         var orderedSnapshots = branchSnapshots
             .OrderByDescending(snapshot => snapshot.RetrievedAtUtc)
@@ -221,7 +235,7 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
         var previousSnapshot = orderedSnapshots.Skip(1).FirstOrDefault();
         var netSales = metrics.Count == 0 ? (decimal?)null : metrics.Sum(metric => metric.NetSales);
         var transactionCount = metrics.Count == 0 ? (int?)null : metrics.Sum(metric => metric.TransactionCount);
-        var negativeReviewCount = reviews.Count(review => review.Rating is >= 1 and <= 2);
+        var negativeReviewCount = reviews.Count(review => review.Rating is not null && review.Rating <= lowRatingMaximum);
 
         return new CorporateDashboardBranchRowViewModel(
             branch.Id,
@@ -348,50 +362,6 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
             "Datos simulados");
     }
 
-    private static ExecutiveSummaryViewModel BuildExecutiveSummary(
-        IReadOnlyList<CorporateDashboardBranchRowViewModel> rows,
-        OperationalSummaryViewModel operationalSummary,
-        Guid? selectedBranchId)
-    {
-        if (selectedBranchId is not null)
-        {
-            var branch = rows.FirstOrDefault();
-            if (branch is null)
-            {
-                return new ExecutiveSummaryViewModel(
-                    "Sucursal",
-                    "No disponible",
-                    "La sucursal seleccionada no tiene datos para el periodo.",
-                    "Sin datos",
-                    "muted",
-                    0);
-            }
-
-            return new ExecutiveSummaryViewModel(
-                branch.Name,
-                branch.AttentionLevel == "Alta" ? "Requiere seguimiento" : "Vista mensual de la sucursal",
-                $"Ventas {branch.Currency} {FormatAmount(branch.NetSales)}; ticket promedio {branch.Currency} {FormatAmount(branch.AverageTicket)}; rating {FormatAmount(branch.Rating)}.",
-                branch.AttentionLevel,
-                ToneForAttention(branch.AttentionLevel),
-                HealthPercent(branch));
-        }
-
-        var bestSalesBranch = rows
-            .Where(row => row.NetSales is not null)
-            .OrderByDescending(row => row.NetSales)
-            .FirstOrDefault();
-        var highAttentionCount = rows.Count(row => row.AttentionLevel == "Alta");
-        var normalCount = rows.Count(row => row.AttentionLevel == "Normal");
-
-        return new ExecutiveSummaryViewModel(
-            "Todas las sucursales",
-            bestSalesBranch is null ? "Sin ventas del periodo" : $"{bestSalesBranch.Name} lidera ventas",
-            $"Total {operationalSummary.Currency} {FormatAmount(operationalSummary.NetSales)}; {FormatAmount(operationalSummary.TransactionCount)} transacciones; ticket promedio {operationalSummary.Currency} {FormatAmount(operationalSummary.AverageTicket)}.",
-            highAttentionCount == 0 ? "Controlado" : $"{highAttentionCount} en atencion",
-            highAttentionCount == 0 ? "success" : "warning",
-            rows.Count == 0 ? 0 : (int)Math.Round(normalCount * 100m / rows.Count));
-    }
-
     private static IReadOnlyList<DashboardInsightViewModel> BuildInsights(
         IReadOnlyList<CorporateDashboardBranchRowViewModel> rows,
         OperationalSummaryViewModel operationalSummary)
@@ -400,23 +370,19 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
             .Where(row => row.NetSales is not null)
             .OrderByDescending(row => row.NetSales)
             .FirstOrDefault();
+        var bestTransactionsBranch = rows
+            .Where(row => row.TransactionCount is not null)
+            .OrderByDescending(row => row.TransactionCount)
+            .FirstOrDefault();
         var bestTicketBranch = rows
             .Where(row => row.AverageTicket is not null)
             .OrderByDescending(row => row.AverageTicket)
             .FirstOrDefault();
-        var lowestRatingBranch = rows
-            .Where(row => row.Rating is not null)
-            .OrderBy(row => row.Rating)
-            .FirstOrDefault();
-
         return
         [
             new DashboardInsightViewModel("Ventas", $"{operationalSummary.Currency} {FormatAmount(operationalSummary.NetSales)}", bestSalesBranch is null ? "Sin datos operativos." : $"Mayor aporte: {bestSalesBranch.Code}.", "info"),
-            new DashboardInsightViewModel("Transacciones", FormatAmount(operationalSummary.TransactionCount), "Movimiento del mes seleccionado.", "muted"),
-            new DashboardInsightViewModel("Ticket", $"{operationalSummary.Currency} {FormatAmount(operationalSummary.AverageTicket)}", bestTicketBranch is null ? "Sin ticket promedio." : $"Mayor ticket: {bestTicketBranch.Code}.", "success"),
-            lowestRatingBranch is null
-                ? new DashboardInsightViewModel("Rating", "No disponible", "Sin reputacion sincronizada.", "muted")
-                : new DashboardInsightViewModel("Rating", lowestRatingBranch.Rating!.Value.ToString("0.00"), $"Menor rating: {lowestRatingBranch.Code}.", lowestRatingBranch.Rating < 4 ? "warning" : "success")
+            new DashboardInsightViewModel("Transacciones", FormatAmount(operationalSummary.TransactionCount), bestTransactionsBranch is null ? "Sin transacciones." : $"Mayor volumen: {bestTransactionsBranch.Code}.", "muted"),
+            new DashboardInsightViewModel("Ticket promedio", $"{operationalSummary.Currency} {FormatAmount(operationalSummary.AverageTicket)}", bestTicketBranch is null ? "Sin ticket promedio." : $"Mayor ticket: {bestTicketBranch.Code}.", "success")
         ];
     }
 
@@ -504,30 +470,83 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
             .ToList();
     }
 
-    private static string ToneForAttention(string attentionLevel)
+    private static ReviewCoverageViewModel BuildReviewCoverage(IReadOnlyList<ReviewProjection> reviews)
     {
-        return attentionLevel switch
-        {
-            "Alta" => "warning",
-            "Media" => "info",
-            "Normal" => "success",
-            _ => "muted"
-        };
+        var categorizedCount = reviews.Count(review => review.CategoryIds.Count > 0);
+        var uncategorizedCount = reviews.Count - categorizedCount;
+
+        return new ReviewCoverageViewModel(
+            reviews.Count,
+            categorizedCount,
+            uncategorizedCount,
+            reviews.Count == 0 ? 0 : (int)Math.Round(categorizedCount * 100m / reviews.Count));
     }
 
-    private static int HealthPercent(CorporateDashboardBranchRowViewModel row)
+    private static IReadOnlyList<ReviewRatingSliceViewModel> BuildReviewRatingSlices(IReadOnlyList<ReviewProjection> reviews)
     {
-        if (row.AttentionLevel == "Alta")
+        var ratedReviews = reviews
+            .Where(review => review.Rating is not null)
+            .ToList();
+
+        if (ratedReviews.Count == 0)
         {
-            return 35;
+            return [];
         }
 
-        if (row.AttentionLevel == "Media")
+        var slices = new[]
         {
-            return 65;
-        }
+            new RatingSlice("Bajas", ratedReviews.Count(review => review.Rating!.Value <= LowRatingMaximum), "#b42318"),
+            new RatingSlice("Medias", ratedReviews.Count(review => review.Rating!.Value > LowRatingMaximum && review.Rating!.Value <= 3), "#d48806"),
+            new RatingSlice("Altas", ratedReviews.Count(review => review.Rating!.Value >= 4), "#1f6f4a")
+        };
 
-        return 90;
+        return slices
+            .Where(slice => slice.Count > 0)
+            .Select(slice => new ReviewRatingSliceViewModel(
+                slice.Label,
+                slice.Count,
+                Math.Round(slice.Count * 100m / ratedReviews.Count, 1),
+                slice.Color))
+            .ToList();
+    }
+
+    private static IReadOnlyList<CategoryImpactViewModel> BuildCategoryImpact(
+        IReadOnlyList<CategoryProjection> categories,
+        IReadOnlyList<ReviewProjection> reviews)
+    {
+        var items = categories
+            .Select(category =>
+            {
+                var categoryReviews = reviews
+                    .Where(review => review.CategoryIds.Contains(category.Id))
+                    .ToList();
+                var ratingValues = categoryReviews
+                    .Where(review => review.Rating is not null)
+                    .Select(review => (decimal)review.Rating!.Value)
+                    .ToList();
+                var averageRating = ratingValues.Count == 0 ? (decimal?)null : Math.Round(ratingValues.Average(), 2);
+
+                return new CategoryImpactViewModel(
+                    category.Id,
+                    category.Name,
+                    categoryReviews.Count,
+                    averageRating,
+                    CalculateRatingPercent(averageRating));
+            })
+            .Where(item => item.MentionCount > 0)
+            .OrderBy(item => item.AverageRating ?? 6m)
+            .ThenByDescending(item => item.MentionCount)
+            .ThenBy(item => item.CategoryName)
+            .ToList();
+
+        return items;
+    }
+
+    private static int CalculateRatingPercent(decimal? averageRating)
+    {
+        return averageRating is null
+            ? 0
+            : (int)Math.Round(averageRating.Value * 20m);
     }
 
     private static string FormatAmount(decimal? value)
@@ -571,7 +590,12 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
     private sealed record ReviewProjection(
         Guid BranchId,
         byte? Rating,
-        DateTimeOffset? PublishedAtUtc);
+        DateTimeOffset? PublishedAtUtc,
+        IReadOnlyList<Guid> CategoryIds);
+
+    private sealed record CategoryProjection(
+        Guid Id,
+        string Name);
 
     private sealed record OperationalMetricProjection(
         Guid BranchId,
@@ -587,4 +611,9 @@ public class DashboardController(ApplicationDbContext dbContext) : Controller
     private sealed record ChartValue(
         string Label,
         decimal Value);
+
+    private sealed record RatingSlice(
+        string Label,
+        int Count,
+        string Color);
 }

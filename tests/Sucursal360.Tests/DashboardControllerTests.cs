@@ -53,9 +53,12 @@ public sealed class DashboardControllerTests
         Assert.AreEqual("Actualizado", branch.DataStatus);
         Assert.AreEqual("Operando", branch.BusinessStatus);
 
-        Assert.HasCount(4, model.Insights);
+        Assert.HasCount(3, model.Insights);
         Assert.AreEqual("Ventas", model.Insights[0].Label);
         Assert.AreEqual("Sin datos operativos.", model.Insights[0].Detail);
+        Assert.AreEqual("Transacciones", model.Insights[1].Label);
+        Assert.AreEqual("Sin transacciones.", model.Insights[1].Detail);
+        Assert.AreEqual("Ticket promedio", model.Insights[2].Label);
         Assert.AreEqual(SeedIds.BranchCentro, model.Ranking[0].BranchId);
         Assert.AreEqual(88, model.Ranking[0].RatingPercent);
 
@@ -86,6 +89,9 @@ public sealed class DashboardControllerTests
         var centroReview = CreateReview("REV-CENTRO-SERVICIO", SeedIds.BranchCentro, 2);
         var carreteraReview = CreateReview("REV-CARRETERA-PRECIO", SeedIds.BranchCarreteraSur, 5);
         context.Reviews.AddRange(centroReview, carreteraReview);
+        context.ReviewCategoryAssignments.AddRange(
+            CreateAssignment(centroReview.Id, SeedIds.CategoryServicio),
+            CreateAssignment(carreteraReview.Id, SeedIds.CategoryPrecio));
         context.SimulatedOperationalMetrics.AddRange(
             CreateMetric(import.Id, SeedIds.BranchCentro, 1000m, 10),
             CreateMetric(import.Id, SeedIds.BranchCarreteraSur, 5000m, 25));
@@ -116,8 +122,9 @@ public sealed class DashboardControllerTests
         Assert.AreEqual(1, centro.PeriodReviewCount);
         Assert.AreEqual(1, centro.NegativeReviewCount);
 
-        Assert.AreEqual("Cafe Horizonte Carretera Sur lidera ventas", model.ExecutiveSummary.Headline);
-        Assert.AreEqual("1 en atencion", model.ExecutiveSummary.RiskLabel);
+        Assert.AreEqual("Mayor volumen: SUC-002.", model.Insights[1].Detail);
+        Assert.AreEqual("Ticket promedio", model.Insights[2].Label);
+        Assert.AreEqual("Mayor ticket: SUC-002.", model.Insights[2].Detail);
 
         Assert.HasCount(2, model.SalesSlices);
         Assert.AreEqual("SUC-002", model.SalesSlices[0].Label);
@@ -126,6 +133,19 @@ public sealed class DashboardControllerTests
         Assert.AreEqual("SUC-002", model.TicketBars[0].Label);
         Assert.AreEqual(200m, model.TicketBars[0].AverageTicket);
         Assert.AreEqual(100, model.TicketBars[0].Percent);
+
+        Assert.AreEqual(2, model.ReviewCoverage.TotalCount);
+        Assert.AreEqual(2, model.ReviewCoverage.CategorizedCount);
+        Assert.AreEqual(100, model.ReviewCoverage.CategorizedPercent);
+
+        var lowRatingSlice = model.ReviewRatingSlices.Single(slice => slice.Label == "Bajas");
+        Assert.AreEqual(1, lowRatingSlice.Count);
+        Assert.AreEqual(50m, lowRatingSlice.Percent);
+
+        var serviceImpact = model.CategoryImpact.Single(category => category.CategoryId == SeedIds.CategoryServicio);
+        Assert.AreEqual(1, serviceImpact.MentionCount);
+        Assert.AreEqual(2m, serviceImpact.AverageRating);
+        Assert.AreEqual(40, serviceImpact.RatingPercent);
     }
 
     private static ApplicationDbContext CreateContext(SqliteConnection connection)
