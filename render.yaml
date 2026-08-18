@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: sucursal360
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        value: Data Source=/tmp/sucursal360/app.db;Cache=Shared
+      - key: Database__MigrateOnStartup
+        value: "true"
+      - key: SeedUsers__Enabled
+        value: "true"
+      - key: DemoBootstrap__Enabled
+        value: "true"
+      - key: DemoBootstrap__ResetDatabase
+        value: "true"
+      - key: DemoBootstrap__OperationalMetricsCsvPath
+        value: /app/samples/simulated-operational-metrics.csv
+      - key: SeedUsers__DefaultPassword
+        sync: false

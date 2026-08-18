@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+**/app.db
+**/app.db-shm
+**/app.db-wal
+.git/
+.github/
+.vs/
+.vscode/
+.idea/
+.DS_Store
+publish/
+TestResults/
+*.user
+*.suo
+*.log

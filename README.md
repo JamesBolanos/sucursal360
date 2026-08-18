@@ -95,6 +95,26 @@ Ejecutar pruebas:
 dotnet test Sucursal360.slnx -m:1 -nr:false --no-restore --no-build
 ```
 
+## Despliegue En Azure
+
+El camino recomendado para publicar el demo es Azure App Service con GitHub Actions.
+
+Guia paso a paso:
+
+- [docs/18-despliegue-azure.md](docs/18-despliegue-azure.md)
+
+El primer despliegue usa SQLite en `/home/site/data/app.db` para mantener baja friccion. Esta opcion es solo para demo de una instancia; si el proyecto pasa a piloto, migrar a Azure SQL.
+
+## Despliegue En Render Free
+
+Si no se usara Azure, el camino gratuito recomendado para demo es Render Free con Docker y bootstrap automatico.
+
+Guia paso a paso:
+
+- [docs/19-despliegue-render-free.md](docs/19-despliegue-render-free.md)
+
+Esta opcion trata SQLite como efimero y reconstruye los datos demo al arrancar. No conserva cambios manuales entre reinicios.
+
 ## Rutas Importantes
 
 - `src/Sucursal360.Web`: aplicacion MVC
@@ -102,4 +122,6 @@ dotnet test Sucursal360.slnx -m:1 -nr:false --no-restore --no-build
 - `samples/simulated-operational-metrics.csv`: CSV demo para importacion
 - `docs/16-plan-implementacion-ejecutable.md`: plan por iteraciones
 - `docs/17-guion-demo.md`: guion demo de 5-7 minutos
+- `docs/18-despliegue-azure.md`: guia de publicacion en Azure App Service
+- `docs/19-despliegue-render-free.md`: guia de publicacion en Render Free
 - `AGENTS.md`: guia operativa para agentes de IA

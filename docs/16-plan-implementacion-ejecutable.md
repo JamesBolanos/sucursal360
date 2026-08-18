@@ -372,17 +372,20 @@ Objetivo: publicar cuando el demo local ya sea estable.
 
 Tareas:
 
-- Elegir plataforma.
-- Si se usa Azure App Service, mover base de datos a Azure SQL u otra base administrada.
+- Usar Azure App Service como plataforma inicial.
+- Mantener SQLite solo para demo de una instancia usando `/home/site/data/app.db`.
+- Agregar GitHub Actions para despliegue a App Service.
 - Configurar variables de entorno y secretos.
 - Ejecutar migraciones.
 - Verificar login, dashboard, sync demo y exportacion.
+- Documentar cuando migrar a Azure SQL.
 
 Evidencia:
 
 - URL publica carga.
 - Credenciales demo funcionan.
 - No hay secretos en repo.
+- Workflow de GitHub Actions pasa build, pruebas y despliegue.
 
 Salida esperada:
 

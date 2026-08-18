@@ -7,6 +7,7 @@ namespace Sucursal360.Web.Data;
 
 public static class DevelopmentUserSeeder
 {
+    private const string EnabledKey = "SeedUsers:Enabled";
     private const string DefaultPasswordKey = "SeedUsers:DefaultPassword";
 
     public static async Task SeedAsync(IServiceProvider services)
@@ -14,26 +15,28 @@ public static class DevelopmentUserSeeder
         using var scope = services.CreateScope();
 
         var environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
-        if (!environment.IsDevelopment())
-        {
-            return;
-        }
-
         var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
         var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
             .CreateLogger("DevelopmentUserSeeder");
+        var isEnabled = environment.IsDevelopment() || configuration.GetValue<bool>(EnabledKey);
+        if (!isEnabled)
+        {
+            logger.LogInformation("Demo users were not seeded because {Key} is not enabled.", EnabledKey);
+            return;
+        }
+
         var defaultPassword = configuration[DefaultPasswordKey];
 
         if (string.IsNullOrWhiteSpace(defaultPassword))
         {
-            logger.LogInformation("Development users were not seeded because {Key} is not configured.", DefaultPasswordKey);
+            logger.LogInformation("Demo users were not seeded because {Key} is not configured.", DefaultPasswordKey);
             return;
         }
 
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         if (!await dbContext.Branches.AnyAsync())
         {
-            logger.LogWarning("Development users were not seeded because branch seed data is missing.");
+            logger.LogWarning("Demo users were not seeded because branch seed data is missing.");
             return;
         }
 
